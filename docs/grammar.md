@@ -40,7 +40,8 @@
 | comilla_simple        |               '                |              '               |
 | comilla_doble         |               "                |              "               |
 | id                    |        <identificador>         |       [a-z][a-z0-9_]*        |
-| numero                |       <cualquier numero>       |       [0-9](.[0-9]*)?       |
+| int                   |        <número entero>         |            [0-9]+            |
+| double                |        <número decimal>        |        [0-9]+\.[0-9]+        |
 | char                  |        <cualquier char>        |        '[\x0-\x255]'         |
 | boolean               |        <valor booleano>        |         true\|false          |
 | string                |       <cualquier cadena>       |             ".*"             |
@@ -103,9 +104,7 @@
 | S_LLAMADA            | LLamada a una función o método previamente definid                 |
 | S_RETURN             | Retorno de valor en una función                                    |
 | TIPO                 | Tipo otorgado a una variable                                       |
-| VALOR                | Valor asignado a una variable                                      |
 | EXPRESION_ARITMETICA | Expresión de operación aritmética                                  |
-| EXPRESION_BOOLEANA   | Expresión de operación booleana                                    |
 | PRODUCCION_2         | d                                                                  |
 | PRODUCCION_2         | d                                                                  |
 | PRODUCCION_2         | d                                                                  |
@@ -116,36 +115,39 @@
 
 ## Sintáxis
 
-```py
+```rust
 
 Estado inicial = INI
 
 INI  =>  [SS] EOF
 
-
 SS
      =>   [DECLARACION_FUNCION] [SS]
      |    [DECLARACION_METODO] [SS]
      |    [EXEC] [SS]
-     |    error [S]
+     |    error [SS]
      |    empty
-
 
 DECLARACION_FUNCION
      =>   [TIPO] id parA [PARAMETRO] parB llaveA [S] llaveB
      |    [TIPO] id parA  parB llaveA [S] llaveB
 
-
 DECLARACION_METODO
-     =>   void id parA [PARAMETRO] parB llaveA [S] llaveB
-     |    void id parA  parB llaveA [S] llaveB
+     =>   r_void id parA [PARAMETRO] parB llaveA [S] llaveB
+     |    r_void id parA  parB llaveA [S] llaveB
+
+TIPO
+     =>   r_int
+     |    r_double
+     |    r_boolean
+     |    r_char
+     |    r_string
 
 PARAMETRO
      =>   [TIPO] id
      |    [TIPO] id coma [PARAMETRO]
 
 EXEC  =>  r_exec [S_LLAMADA]
-
 
 S
      =>   [DECLARACION_VARIABLE] [S]
@@ -167,7 +169,6 @@ S
      |    error [S]
      |    empty
 
-
 DECLARACION_VARIABLE
      =>   [TIPO] id puntocoma
      |    [TIPO] id igual [VALOR] puntocoma
@@ -176,59 +177,35 @@ ASIGNACION_VARIABLE
      =>   [ASIGNACION] puntocoma
 
 ASIGNACION
-     =>   id igual [VALOR]
+     =>   id igual [EXPRESION]
 
-TIPO
-     =>   r_int
-     |    r_double
-     |    r_boolean
-     |    r_char
-     |    r_string
-
-VALOR
-     =>   parA [TIPO] parB [VALOR]
+EXPRESION
+     =>   [EXPRESION] opar_suma [EXPRESION]
+     |    [EXPRESION] opar_resta [EXPRESION]
+     |    [EXPRESION] opar_multiplicacion [EXPRESION]
+     |    [EXPRESION] opar_division [EXPRESION]
+     |    [EXPRESION] opar_potencia [EXPRESION]
+     |    [EXPRESION] opar_modulo [EXPRESION]
+     |    [EXPRESION] oprel_igualacion [EXPRESION]
+     |    [EXPRESION] oprel_diferenciacion [EXPRESION]
+     |    [EXPRESION] oprel_menor [EXPRESION]
+     |    [EXPRESION] oprel_menorigual [EXPRESION]
+     |    [EXPRESION] oprel_mayor [EXPRESION]
+     |    [EXPRESION] oprel_mayorigual [EXPRESION]
+     |    [EXPRESION] oplog_or [EXPRESION]
+     |    [EXPRESION] oplog_and [EXPRESION]
+     |    opar_resta [EXPRESION]
+     |    parA [TIPO] parB [EXPRESION]
+     |    oplog_not [EXPRESION]
+     |    opar_resta [EXPRESION]
+     |    parA [EXPRESION] parB
      |    id
-     |    [LLAMADA]
-     |    [EXPRESION_ARITMETICA]
-     |    [EXPRESION_BOOLEANA]
+     |    int
+     |    double
      |    char
      |    string
-
-
-EXPRESION_ARITMETICA
-     =>   [EXPRESION_ARITMETICA] opar_suma [EXPRESION_ARITMETICA]
-     |    [EXPRESION_ARITMETICA] opar_resta [EXPRESION_ARITMETICA]
-     |    [EXPRESION_ARITMETICA] opar_multiplicacion [EXPRESION_ARITMETICA]
-     |    [EXPRESION_ARITMETICA] opar_division [EXPRESION_ARITMETICA]
-     |    [EXPRESION_ARITMETICA] opar_potencia [EXPRESION_ARITMETICA]
-     |    [EXPRESION_ARITMETICA] opar_modulo [EXPRESION_ARITMETICA]
-     |    opar_resta [EXPRESION_ARITMETICA]
-     |    parA [EXPRESION_ARITMETICA] parB
-     |    id
-     |    [LLAMADA]
-     |    numero
-     |    [EXPRESION_BOOLEANA]
-     |    char
-     |    string
-     |    [ACCESO_VECTOR]
-     |    [ACCESO_LISTA]
-
-
-EXPRESION_BOOLEANA
-     =>   [EXPRESION_BOOLEANA] oprel_igualacion [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oprel_diferenciacion [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oprel_menor [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oprel_menorigual [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oprel_mayor [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oprel_mayorigual [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oplog_or [EXPRESION_BOOLEANA]
-     |    [EXPRESION_BOOLEANA] oplog_and [EXPRESION_BOOLEANA]
-     |    oplog_not [EXPRESION_BOOLEANA]
-     |    parA [EXPRESION_BOOLEANA] parB
-     |    id
-     |    [LLAMADA]
      |    boolean
-     |    string
+     |    [LLAMADA]
      |    [ACCESO_VECTOR]
      |    [ACCESO_LISTA]
 
@@ -246,27 +223,26 @@ LISTA_VALORES
      |    empty
 
 ELEMENTO_VALOR
-     =>   [VALOR]
-     |    [VALOR] coma [ELEMENTO_VALOR]
+     =>   [EXPRESION]
+     |    [EXPRESION] coma [ELEMENTO_VALOR]
 
 
 DECLARACION_VECTOR
-     =>   [TIPO] corA corB id igual r_new [TIPO] corA [VALOR] corB puntocoma
+     =>   [TIPO] corA corB id igual r_new [TIPO] corA [EXPRESION] corB puntocoma
      |    [TIPO] corA corB id igual llaveA [LISTA_VALORES] llaveB puntocoma
 
-ACCESO_VECTOR  =>  id corA [VALOR] corB
+ACCESO_VECTOR  =>  id corA [EXPRESION] corB
 
-MODIFICACION_VECTOR  =>  [ACCESO_VECTOR] igual [VALOR] puntocoma
+MODIFICACION_VECTOR  =>  [ACCESO_VECTOR] igual [EXPRESION] puntocoma
 
 
 DECLARACION_LISTA  =>  r_list menor [TIPO] mayor id igual r_new r_list menor [TIPO] mayor puntocoma
 
-ADD_LISTA  =>  id punto add parA [VALOR] parB puntocoma
+ADD_LISTA  =>  id punto add parA [EXPRESION] parB puntocoma
 
-ACCESO_LISTA  =>  id corA corA [VALOR] corB corB
+ACCESO_LISTA  =>  id corA corA [EXPRESION] corB corB
 
-MODIFICACION_LISTA  =>  [ACCESO_LISTA] igual [VALOR] puntocoma
-
+MODIFICACION_LISTA  =>  [ACCESO_LISTA] igual [EXPRESION] puntocoma
 
 S_IF  =>  r_if parA [EXPRESION_BOOLEANA] parB llaveA [S] llaveB S_ELSE
 
@@ -275,22 +251,33 @@ S_ELSE
      |    r_else S_IF
      |    empty
 
-
 S_SWITCH  =>  r_switch parA id parB llaveA S_CASE llaveB
 
+C
+     =>  [S] [C]
+     |   r_break puntocoma [C]
+
 S_CASE
-     =>   r_case [VALOR] dospuntos [S] (BREAKK) S_CASE
+     =>   r_case [EXPRESION] dospuntos [C] S_CASE
      |    empty
 
-S_DEFAULT  =>  r_default dospuntos [S]  (BREAKK)
+S_DEFAULT  =>  r_default dospuntos [C]
 
 
-S_WHILE  =>  r_while parA [EXPRESION_BOOLEANA] parB llaveA [S] llaveB
+S_WHILE  =>  r_while parA [CONDICION] parB llaveA [C] llaveB
 
 S_FOR
-     =>   r_for parA [DECLARACION_VARIABLE] [EXPRESION_BOOLEANA] puntocoma [ACTUALIZACION] parB llaveA [S] llaveB
-     |    r_for parA [ASIGNACION_VARIABLE] [EXPRESION_BOOLEANA] puntocoma [ACTUALIZACION] parB llaveA [S] llaveB
+     =>   r_for parA [DECLARACION_VARIABLE] [CONDICION] puntocoma [ACTUALIZACION] parB llaveA [C] llaveB
+     |    r_for parA [ASIGNACION_VARIABLE] [CONDICION] puntocoma [ACTUALIZACION] parB llaveA [C] llaveB
 
+CONDICION
+     =>   [EXPRESION] oprel_igualacion [EXPRESION]
+     |    [EXPRESION] oprel_diferenciacion [EXPRESION]
+     |    [EXPRESION] oprel_menor [EXPRESION]
+     |    [EXPRESION] oprel_menorigual [EXPRESION]
+     |    [EXPRESION] oprel_mayor [EXPRESION]
+     |    [EXPRESION] oprel_mayorigual [EXPRESION]
+        
 ACTUALIZACION
      =>   [INCREMENTO]
      |    [DECREMENTO]
@@ -303,6 +290,6 @@ S_LLAMADA  =>  [LLAMADA] puntocoma
 
 LLAMADA  =>  id parA [LISTA_VALORES] parB
 
-S_RETURN  =>  r_return [VALOR] puntocoma
+S_RETURN  =>  r_return [EXPRESION] puntocoma
 
 ```

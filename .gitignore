@@ -1,0 +1,25 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/typesty/node_modules
+typesty/.pnp
+typesty/.pnp.js
+
+# testing
+typesty/coverage
+
+# production
+typesty/build
+
+# misc
+typesty/.DS_Store
+typesty/.env.local
+typesty/.env.development.local
+typesty/.env.test.local
+typesty/.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.pdf

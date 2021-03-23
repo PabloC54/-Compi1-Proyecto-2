@@ -1,233 +1,3 @@
-%{
-  const Exec = function (Llamada) {
-  return {
-          Instruccion: "Exec",
-          Llamada: Llamada,
-  };
-  };
-
-  const Funcion = function (Tipo, ID, Parametros, Instrucciones) {
-    return {
-      Instruccion: "Funcion",
-      Tipo: Tipo,
-      ID: ID,
-      Parametros: Parametros,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Metodo = function (ID, Parametros, Instrucciones) {
-    return {
-      Instruccion: "Metodo",
-      Tipo: null,
-      ID: ID,
-      Parametros: Parametros,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Parametro = function (Tipo, ID) {
-    return {
-      Tipo: Tipo,
-      ID: ID,
-    };
-  };
-
-  const Operacion = function (Tipo, Izquierda, Derecha) {
-    return {
-      Tipo: Tipo,
-      Izquierda: Izquierda,
-      Derecha: Derecha,
-    };
-  };
-
-  const Simbolo = function (Tipo, Valor) {
-    return {
-      Tipo: Tipo,
-      Valor: Valor,
-    };
-  };
-
-  const Declaracion = function (Tipo, ID, E) {
-    return {
-      Instruccion: "Declaracion",
-      Tipo: Tipo,
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const Asignacion = function (ID, E) {
-    return {
-      Instruccion: "Asignacion",
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const Ternaria = function (Condicion, E_t, E_f) {
-    return {
-      Tipo: "Ternaria",
-      Condicion: Condicion,
-      E_t: E_t,
-      E_f: E_f,
-    };
-  };
-
-  const Llamada = function (ID, Parametros) {
-    return {
-      Instruccion: "Llamada",
-      ID: ID,
-      Parametros: Parametros,
-    };
-  };
-
-  const Incremento = function (ID) {
-    return {
-      Instruccion: "Incremento",
-      ID: ID,
-    };
-  };
-
-  const Decremento = function (ID) {
-    return {
-      Instruccion: "Decremento",
-      ID: ID,
-    };
-  };
-
-  const Vector = function (Tipo, ID, Tipo_i, Tamano, Valores) {
-    return {
-      Instruccion: "Declarar_vector",
-      Tipo: Tipo,
-      ID: ID,
-      Tipo_i: Tipo_i,
-      Tamano: Tamano,
-      Valores,
-    };
-  };
-
-  const Lista = function (Tipo, ID) {
-    return {
-      Instruccion: "Declarar_lista",
-      Tipo: Tipo,
-      ID: ID,
-    };
-  };
-
-  const Acceso_vector = function (ID, Index) {
-    return {
-      Instruccion: "Acceso_vector",
-      ID: ID,
-      Index: Index,
-    };
-  };
-
-  const Acceso_lista = function (ID, Index) {
-    return {
-      Instruccion: "Acceso_lista",
-      ID: ID,
-      Index: Index,
-    };
-  };
-
-  const Modificacion_vector = function (ID, Index, E) {
-    return {
-      Instruccion: "Modificacion_vector",
-      ID: ID,
-      Index: Index,
-      E: E,
-    };
-  };
-
-  const Modificacion_lista = function (ID, Index, E) {
-    return {
-      Instruccion: "Modificacion_lista",
-      ID: ID,
-      Index: Index,
-      E: E,
-    };
-  };
-
-  const Add_lista = function (ID, E) {
-    return {
-      Instruccion: "Add_lista",
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const If = function (Condicion, Instrucciones_t, Instrucciones_f) {
-    return {
-      Instruccion: "If",
-      Condicion: Condicion,
-      Instrucciones_t: Instrucciones_t,
-      Instrucciones_f: Instrucciones_f,
-    };
-  };
-
-  const Switch = function (E, Cases, Default) {
-    return {
-      Instruccion: "Switch",
-      E: E,
-      Cases: Cases,
-      Default: Default,
-    };
-  };
-
-  const Case = function (E, Instrucciones) {
-    return {
-      Instruccion: "Case",
-      E: E,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const While = function (Condicion, Instrucciones) {
-    return {
-      Instruccion: "While",
-      Condicion: Condicion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const For = function (Inicializacion, Condicion, Actualizacion, Instrucciones) {
-    return {
-      Instruccion: "For",
-      Inicializacion: Inicializacion,
-      Condicion: Condicion,
-      Actualizacion: Actualizacion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Do_while = function (Condicion, Instrucciones) {
-    return {
-      Instruccion: "Do-while",
-      Condicion: Condicion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Return = function (E) {
-    return {
-      Instruccion: "Return",
-      E: E,
-    };
-  };
-
-  const Break = function () {
-    return {
-      Instruccion: "Break",
-    };
-  };
-
-  const Continue = function () {
-    return {
-      Instruccion: "Continue",
-    };
-  };
-}%
 
 %lex
 
@@ -384,40 +154,87 @@ BLOQUE
 
 DECLARACION_FUNCION
         : TIPO id parA PARAMETROS parB BLOQUE
-                { $$ = Funcion($1, $2, $4, $5); }
+                { $$ = {
+            Instruccion: "Funcion",
+            Tipo: $1,
+            ID: $2,
+            Parametros: $4,
+            Instrucciones: $6
+        }; }
         | TIPO id parA parB BLOQUE
-                { $$ = Funcion($1, $2, null, $4); }
+                { $$ = {
+            Instruccion: "Funcion",
+            Tipo: $1,
+            ID: $2,
+            Parametros: null,
+            Instrucciones: $5
+        }; }
 ;
 
 DECLARACION_METODO
         : r_void id parA PARAMETROS parB BLOQUE
-                { $$ = Metodo($2, $4, $6); }
+                { $$ = {
+            Instruccion: "Metodo",
+            Tipo: null,
+            ID: $2,
+            Parametros: $4,
+            Instrucciones: $6
+        }; }
         | r_void id parA parB BLOQUE
-                { $$ = Metodo($2, [], $5); }
+                { $$ = {
+            Instruccion: "Metodo",
+            Tipo: null,
+            ID: $2,
+            Parametros: null,
+            Instrucciones: $5
+        }; }
 ;
 
 PARAMETROS
         : PARAMETROS coma TIPO id
-                { $$ = $1; $$.push(Parametro($3, $4)); }
+                { $$ = $1; $$.push({
+            Tipo: $3,
+            ID: $4
+        }); }
         | TIPO id
-                { $$ = [Parametro($1, $2)]; }
+                { $$ = [{
+            Tipo: $1,
+            ID: $2
+        }]; }
 ;
 
 EXEC
         : r_exec S_LLAMADA
-                { $$ = Exec($2); }
+                { $$ = {
+            Instruccion: "Exec",
+            Llamada: $2
+        }; }
 ;
 
 DECLARACION_VARIABLE
         : TIPO id puntocoma
-                { $$ = Declaracion($1, $2, null); }
+                { $$ = {
+            Instruccion: "Declaracion",
+            Tipo: $1,
+            ID: $2,
+            E:null
+        }; }
         | TIPO id igual E puntocoma
-                { $$ = Declaracion($1, $2, $4); }
+                { $$ = {
+            Instruccion: "Declaracion",
+            Tipo: $1,
+            ID: $2,
+            E: $4
+        }; }
 ;
 
 ASIGNACION_VARIABLE
         : id igual E puntocoma
-                { $$ = Asignacion($1, $3); }
+                { $$ = {
+            Instruccion: "Asignacion",
+            ID: $1,
+            E: $3
+        }; }
         //| id igual OPERACION_TERNARIA puntocoma
         //        { $$ = Asignacion($1, $3); }
 ;
@@ -442,39 +259,82 @@ TIPO
 
 E
         : E opar_suma E
-                { $$ = Operacion("suma", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E opar_resta E
-                { $$ = Operacion("resta", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E opar_multiplicacion E
-                { $$ = Operacion("multiplicacion", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E opar_division E
-                { $$ = Operacion("division", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E opar_potencia E
-                { $$ = Operacion("potencia", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E opar_modulo E
-                { $$ = Operacion("modulo", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oprel_igualacion E
-                { $$ = Operacion("igualacion", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oprel_diferenciacion E
-                { $$ = Operacion("diferenciacion", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oprel_menor E
-                { $$ = Operacion("menor", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oprel_menorigual E
-                { $$ = Operacion("menorigual", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oprel_mayor E
-                { $$ = Operacion("mayor", $1, $3); }
-        | E oprel_mayorigual E
-                { $$ = Operacion("mayorigual", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oplog_or E
-                { $$ = Operacion("or", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | E oplog_and E
-                { $$ = Operacion("and", $1, $3); }
+                { $$ = {
+            Izquierda: $1,
+            Derecha: $3
+        }; }
         | opar_resta E %prec opar_negacion
-                { $$ = Operacion("negacion", $2, null); }
+                { $$ = {
+            Izquierda: $2,
+            Derecha: null
+        }; }
         | oplog_not E
-                { $$ = Operacion("not", $2, null); }
-        //| parA E parB
-        //        { $$ = $2; }
+                { $$ = {
+            Izquierda: $2,
+            Derecha: null
+        }; }
+        | parA E parB
+                { $$ = $2; }
         | LLAMADA
                 { $$ = $1; }
         | ACCESO_VECTOR
@@ -482,17 +342,35 @@ E
         | ACCESO_LISTA
                 { $$ = $1; }
         | id
-                { $$ = Simbolo("id", $1); }
+                { $$ = {
+            Tipo: "id",
+            Valor: $1
+        }; }
         | int
-                { $$ = Simbolo("int", $1); }
+                { $$ = {
+            Tipo: "int",
+            Valor: $1
+        }; }
         | double
-                { $$ = Simbolo("double", $1); }
+                { $$ = {
+            Tipo: "double",
+            Valor: $1
+        }; }
         | char
-                { $$ = Simbolo("char", $1); }
+                { $$ = {
+            Tipo: "char",
+            Valor: $1
+        }; }
         | string
-                { $$ = Simbolo("string", $1); }
+                { $$ = {
+            Tipo: "string",
+            Valor: $1
+        }; }
         | boolean
-                { $$ = Simbolo("boolean", $1); }
+                { $$ = {
+            Tipo: "boolean",
+            Valor: $1
+        }; }
 ;
 
 INCREMENTO_VARIABLE
@@ -507,12 +385,18 @@ DECREMENTO_VARIABLE
 
 INCREMENTO
         : id opar_suma opar_suma
-                { $$ = Incremento($1); }
+                { $$ = {
+            Instruccion: "Incremento",
+            ID: $1
+        }; }
 ;
 
 DECREMENTO
         : id opar_resta opar_resta
-                { $$ = Decremento($1); }
+                { $$ = {
+            Instruccion: "Decremento",
+            ID: $1
+        }; }
 ;
 
 VALORES
@@ -524,46 +408,72 @@ VALORES
 
 DECLARACION_VECTOR
         : TIPO corA corB id igual r_new TIPO corA E corB puntocoma
-                { $$ = Vector($1, $4, $7, $9, null); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
         | TIPO corA corB id igual llaveA VALORES llaveB puntocoma
-                { $$ = Vector($1, $4, null, null, $7); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 ACCESO_VECTOR
         : id corA E corB
-                { $$ = Acceso_vector($1, $3); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 MODIFICACION_VECTOR
         : id corA E corB igual E puntocoma
-                { $$ = Modificacion_vector($1, $3, $6); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 DECLARACION_LISTA
         : r_list menor TIPO mayor id igual r_new _list menor TIPO mayor puntocoma
-                { $$ = Lista($3, $5, $10); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 ADD_LISTA
         : id punto r_add parA E parB puntocoma
-                { $$ = Add_lista($1, $5); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 ACCESO_LISTA
         : id corA corA E corB corB
-                { $$ = Acceso_lista($1, $4); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 MODIFICACION_LISTA
         : id corA corA E corB corB igual E puntocoma
-                { $$ = Modificacion_lista($1, $4, $8); }
+                { $$ = {
+            Instruccion: "Declarar_vector"
+        }; }
 ;
 
 S_IF
         : r_if parA E parB BLOQUE
-                { $$ = If($3, $5, null); }
+                { $$ = {
+            Instruccion: "If",
+            Condicion: $3,
+            Instrucciones_t: $5,
+            Instrucciones_f: null
+        }; }
         | r_if parA E parB BLOQUE S_ELSE
-                { $$ = If($3, $5, $6); }
+                { $$ = {
+            Instruccion: "If",
+            Condicion: $3,
+            Instrucciones_t: $5,
+            Instrucciones_f: $6
+        }; }
 	| r_if parA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
@@ -578,35 +488,57 @@ S_ELSE
 
 S_SWITCH
         : r_switch parA E parB llaveA CASES S_DEFAULT llaveB
-                { $$ = Switch($3, $6, $7); }
+                { $$ = {
+            Instruccion: "Switch",
+            E: $3,
+            Cases: $6,
+            Default: $7
+        };}
         | r_switch parA E parB llaveA CASES llaveB
-                { $$ = Switch($3, $6, $7); }
+                { $$ = {
+            Instruccion: "Switch",
+            E: $3,
+            Cases: $6,
+            Default: null
+        };}
         | r_switch parA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
 
 CASES
         : CASES r_case E dospuntos INS
-                { $$ = $1; $$.push(Case($3, $5)); }
+                { $$ = $1; $$.push( {
+            Instruccion: "Case",
+            E: $3,
+            Instrucciones: $5
+        }); }
         | r_case E dospuntos INS
-                { $$ = [Case($2, $4)]; }
+                { $$ = {
+            Instruccion: "Case",
+            E: $3,
+            Instrucciones: $5
+        }; }
 ;
 
 S_DEFAULT
         : r_default dospuntos INS
-                { $$ = Default($3); }
+                { $$ = {i:"def"}; }
 ;
 
 S_WHILE
         : r_while parA E parB BLOQUE
-                { $$ = While($3, $5); }
+                { $$ = {
+            Instruccion: "While",
+            Condicion: $3,
+            Instrucciones: $5
+        }; }
         | r_while parA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
 
 S_FOR
         : r_for parA INICIALIZACION puntocoma E puntocoma ACTUALIZACION parB BLOQUE
-                { $$ = For($3, $5, $7, $9); }
+                { $$ = {Instruccion:For} }
         | r_for parA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
@@ -629,17 +561,27 @@ ACTUALIZACION
 
 ASIGNACION
         : id igual E
-                { $$ = Asignacion($1, $3); }
+        { $$ ={
+            Instruccion: "Asignacion",
+            ID: $1,
+            E: $3
+            }
+        }
 ;
 
 DECLARACION
         : TIPO id igual E
-                { $$ = Declaracion($1, $2, $3); }
+                { $$ = {
+            Instruccion: "Declaracion",
+            Tipo: $1,
+            ID: $2,
+            E: $4
+        }; }
 ;
 
 S_DO
         : r_do BLOQUE r_while parA E parB puntocoma
-                { $$ = Do_while($5, $2); }
+                { $$ = {Instruccion:DO} }
         | r_do error puntocoma
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
@@ -651,22 +593,22 @@ S_LLAMADA
 
 LLAMADA
         : id parA parB
-                { $$ = Llamada($1, null); }
+                { $$ = {Instruccion:Llamada} }
         | id parA VALORES parB
-                { $$ = Llamada($1, $2); }
+                { $$ = {Instruccion:Llamada} }
 ;
 
 S_RETURN
         : r_return E puntocoma
-                { $$ = Return($2); }
+                { $$ = {Instruccion:Return}; }
 ;
 
 S_BREAK
         : r_break puntocoma
-                { $$ = Break(); }
+                { $$ = {Instruccion:Break}; }
 ;
 
 S_CONTINUE
         : r_continue puntocoma
-                { $$ = Continue(); }
+                { $$ = {Instruccion:Continue}; }
 ;

@@ -1,241 +1,44 @@
 %{
-  const Exec = function (Llamada) {
-  return {
-          Instruccion: "Exec",
-          Llamada: Llamada,
-  };
-  };
-
-  const Funcion = function (Tipo, ID, Parametros, Instrucciones) {
-    return {
-      Instruccion: "Funcion",
-      Tipo: Tipo,
-      ID: ID,
-      Parametros: Parametros,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Metodo = function (ID, Parametros, Instrucciones) {
-    return {
-      Instruccion: "Metodo",
-      Tipo: null,
-      ID: ID,
-      Parametros: Parametros,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Parametro = function (Tipo, ID) {
-    return {
-      Tipo: Tipo,
-      ID: ID,
-    };
-  };
-
-  const Operacion = function (Tipo, Izquierda, Derecha) {
-    return {
-      Tipo: Tipo,
-      Izquierda: Izquierda,
-      Derecha: Derecha,
-    };
-  };
-
-  const Simbolo = function (Tipo, Valor) {
-    return {
-      Tipo: Tipo,
-      Valor: Valor,
-    };
-  };
-
-  const Declaracion = function (Tipo, ID, E) {
-    return {
-      Instruccion: "Declaracion",
-      Tipo: Tipo,
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const Asignacion = function (ID, E) {
-    return {
-      Instruccion: "Asignacion",
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const Ternaria = function (Condicion, E_t, E_f) {
-    return {
-      Tipo: "Ternaria",
-      Condicion: Condicion,
-      E_t: E_t,
-      E_f: E_f,
-    };
-  };
-
-  const Llamada = function (ID, Parametros) {
-    return {
-      Instruccion: "Llamada",
-      ID: ID,
-      Parametros: Parametros,
-    };
-  };
-
-  const Incremento = function (ID) {
-    return {
-      Instruccion: "Incremento",
-      ID: ID,
-    };
-  };
-
-  const Decremento = function (ID) {
-    return {
-      Instruccion: "Decremento",
-      ID: ID,
-    };
-  };
-
-  const Vector = function (Tipo, ID, Tipo_i, Tamano, Valores) {
-    return {
-      Instruccion: "Declarar_vector",
-      Tipo: Tipo,
-      ID: ID,
-      Tipo_i: Tipo_i,
-      Tamano: Tamano,
-      Valores,
-    };
-  };
-
-  const Lista = function (Tipo, ID) {
-    return {
-      Instruccion: "Declarar_lista",
-      Tipo: Tipo,
-      ID: ID,
-    };
-  };
-
-  const Acceso_vector = function (ID, Index) {
-    return {
-      Instruccion: "Acceso_vector",
-      ID: ID,
-      Index: Index,
-    };
-  };
-
-  const Acceso_lista = function (ID, Index) {
-    return {
-      Instruccion: "Acceso_lista",
-      ID: ID,
-      Index: Index,
-    };
-  };
-
-  const Modificacion_vector = function (ID, Index, E) {
-    return {
-      Instruccion: "Modificacion_vector",
-      ID: ID,
-      Index: Index,
-      E: E,
-    };
-  };
-
-  const Modificacion_lista = function (ID, Index, E) {
-    return {
-      Instruccion: "Modificacion_lista",
-      ID: ID,
-      Index: Index,
-      E: E,
-    };
-  };
-
-  const Add_lista = function (ID, E) {
-    return {
-      Instruccion: "Add_lista",
-      ID: ID,
-      E: E,
-    };
-  };
-
-  const If = function (Condicion, Instrucciones_t, Instrucciones_f) {
-    return {
-      Instruccion: "If",
-      Condicion: Condicion,
-      Instrucciones_t: Instrucciones_t,
-      Instrucciones_f: Instrucciones_f,
-    };
-  };
-
-  const Switch = function (E, Cases, Default) {
-    return {
-      Instruccion: "Switch",
-      E: E,
-      Cases: Cases,
-      Default: Default,
-    };
-  };
-
-  const Case = function (E, Instrucciones) {
-    return {
-      Instruccion: "Case",
-      E: E,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const While = function (Condicion, Instrucciones) {
-    return {
-      Instruccion: "While",
-      Condicion: Condicion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const For = function (Inicializacion, Condicion, Actualizacion, Instrucciones) {
-    return {
-      Instruccion: "For",
-      Inicializacion: Inicializacion,
-      Condicion: Condicion,
-      Actualizacion: Actualizacion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Do_while = function (Condicion, Instrucciones) {
-    return {
-      Instruccion: "Do-while",
-      Condicion: Condicion,
-      Instrucciones: Instrucciones,
-    };
-  };
-
-  const Return = function (E) {
-    return {
-      Instruccion: "Return",
-      E: E,
-    };
-  };
-
-  const Break = function () {
-    return {
-      Instruccion: "Break",
-    };
-  };
-
-  const Continue = function () {
-    return {
-      Instruccion: "Continue",
-    };
-  };
-}%
+  import {
+    Exec,
+    Funcion,
+    Metodo,
+    Parametro,
+    Operacion,
+    Simbolo,
+    Declaracion,
+    Asignacion,
+    Ternaria,
+    Llamada,
+    Incremento,
+    Decremento,
+    Vector,
+    Lista,
+    Acceso_vector,
+    Acceso_lista,
+    Modificacion_vector,
+    Modificacion_lista,
+    Add_lista,
+    If,
+    Switch,
+    Case,
+    Default,
+    While,
+    For,
+    Do_while,
+    Return,
+    Break,
+    Continue,
+  } from "./symbols";
+%}
 
 %lex
 
 %options case-insensitive
 
 %%
-\n                                                 {}
 [\040\t\r]+                                        {}
+\n                                                 {}
 "//".*                                             {}
 [/][*][^*]*[*]+([^/][^*]*[*]+)*[/]                 {}
 
@@ -289,27 +92,27 @@
 "add"                                              return "r_add";
 "exec"                                             return "r_exec";
 
-[0-9]+                                             return "int";
 [0-9]+"."[0-9]+                                    return "double";
-'[\x00-\x7F]'                                      return "char";
-\"((\\n)|(\\\\)|(\\\")|(\\t)|(\\\')|[^\n\"])*\"    { yytext = yytext.substr(1,yyleng-2); return 'string'};
-'((\\n)|(\\\\)|(\\\")|(\\t)|(\\\')|[^\n\'])*'      { yytext = yytext.substr(1,yyleng-2); return 'string'};
+[0-9]+                                             return "int";
+\'[\x00-\x7F]\'                                    return "char";
+\"((\\n)|(\\\\)|(\\\")|(\\t)|(\\\')|[^\n\"])*\"    { yytext = yytext.substr(1,yyleng-2); return "string"; }
+\'((\\n)|(\\\\)|(\\\")|(\\t)|(\\\')|[^\n\'])*\'    { yytext = yytext.substr(1,yyleng-2); return "string"; }
 [a-z][a-z0-9_]*                                    return "id";
 
 <<EOF>>                                            return "EOF";
-.                                                  {console.error("error!");}
-//.                                                  { console.error('(' + yylloc.first_line + ', ' + yylloc.first_column + ')  Error léxico: <' + yytext+'>'); }
+.                                                  { console.error('(' + yylloc.first_line + ', ' + yylloc.first_column + ')  Error léxico: <' + yytext+'>'); }
 
 /lex //PRECEDENCIA
 
-%left "oplog_or"
-%left "oplog_and"
-%right "oplog_not"
-%left "oprel_igualacion" "oprel_diferenciacion" "oprel_menor" "oprel_menorigual" "oprel_mayor" "oprel_mayorigual"
-%left "opar_suma" "opar_resta"
-%left "opar_multiplicacion" "opar_division" "opar_modulo"
-%left "opar_potencia"
-%left  opar_negacion
+%left JError
+%left 'oplog_or'
+%left 'oplog_and'
+%right 'oplog_not'
+%left 'oprel_igualacion' 'oprel_diferenciacion' 'oprel_menor' 'oprel_menorigual' 'oprel_mayor' 'oprel_mayorigual'
+%left 'opar_suma' 'opar_resta'
+%left 'opar_multiplicacion' 'opar_division' 'opar_modulo'
+%left 'opar_potencia'
+%right opar_negacion
 
 %start INI
 
@@ -317,9 +120,8 @@
 
 INI
         : INS EOF
-                {console.log($1);}
-                //{ console.log(JSON.stringify($1, null, 2)); }
-	| error EOF
+                { return $1; }
+	      | error EOF
                 { console.error("("+this._$.first_line + ", " + this._$.first_column+") Error sintáctico: "+yytext); }
 ;
 
@@ -346,6 +148,8 @@ S
         | DECREMENTO_VARIABLE
                 { $$ = $1; }
         | DECLARACION_VECTOR
+                { $$ = $1; }
+        | MODIFICACION_VECTOR
                 { $$ = $1; }
         | DECLARACION_LISTA
                 { $$ = $1; }
@@ -378,15 +182,17 @@ BLOQUE
                 { $$ = $2; }
         | llaveA llaveB
                 { $$ = []; }
-	| llaveA error llaveB
+	      | llaveA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
 
 DECLARACION_FUNCION
         : TIPO id parA PARAMETROS parB BLOQUE
-                { $$ = Funcion($1, $2, $4, $5); }
+                { $$ = Funcion($1, $2, $4, $6); }
         | TIPO id parA parB BLOQUE
-                { $$ = Funcion($1, $2, null, $4); }
+                { $$ = Funcion($1, $2, [], $5); }
+        | TIPO id parA error llaveB
+                { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
 
 DECLARACION_METODO
@@ -394,6 +200,8 @@ DECLARACION_METODO
                 { $$ = Metodo($2, $4, $6); }
         | r_void id parA parB BLOQUE
                 { $$ = Metodo($2, [], $5); }
+        | r_void id parA error llaveB
+                { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
 
 PARAMETROS
@@ -418,14 +226,14 @@ DECLARACION_VARIABLE
 ASIGNACION_VARIABLE
         : id igual E puntocoma
                 { $$ = Asignacion($1, $3); }
-        //| id igual OPERACION_TERNARIA puntocoma
-        //        { $$ = Asignacion($1, $3); }
+        | id igual OPERACION_TERNARIA puntocoma
+                { $$ = Asignacion($1, $3); }
 ;
 
-//OPERACION_TERNARIA
-//        : E ternary E dospuntos E
-//                { $$ = Ternaria($1, $3, $5); }
-//;
+OPERACION_TERNARIA
+        : E ternary E dospuntos E
+                { $$ = Ternaria($1, $3, $5); }
+;
 
 TIPO
         : r_int
@@ -473,26 +281,32 @@ E
                 { $$ = Operacion("negacion", $2, null); }
         | oplog_not E
                 { $$ = Operacion("not", $2, null); }
-        //| parA E parB
-        //        { $$ = $2; }
+        | parA E parB
+                { $$ = $2; }
         | LLAMADA
                 { $$ = $1; }
         | ACCESO_VECTOR
                 { $$ = $1; }
         | ACCESO_LISTA
                 { $$ = $1; }
+        | parA TIPO parB E
+                { $$ = Operacion("casteo", $4, $2); }
+        | E opar_suma opar_suma
+                { $$ = Operacion("incremento", $1, null); }
+        | E opar_resta opar_resta
+                { $$ = Operacion("decremento", $1, null); }
         | id
-                { $$ = Simbolo("id", $1); }
+                { $$ = Operacion("id", $1, null); }
         | int
-                { $$ = Simbolo("int", $1); }
+                { $$ = Operacion("int", $1, null); }
         | double
-                { $$ = Simbolo("double", $1); }
+                { $$ = Operacion("double", $1, null); }
         | char
-                { $$ = Simbolo("char", $1); }
+                { $$ = Operacion("char", $1, null); }
         | string
-                { $$ = Simbolo("string", $1); }
+                { $$ = Operacion("string", $1, null); }
         | boolean
-                { $$ = Simbolo("boolean", $1); }
+                { $$ = Operacion("boolean", $1, null); }
 ;
 
 INCREMENTO_VARIABLE
@@ -540,7 +354,7 @@ MODIFICACION_VECTOR
 ;
 
 DECLARACION_LISTA
-        : r_list menor TIPO mayor id igual r_new _list menor TIPO mayor puntocoma
+        : r_list menor TIPO mayor id igual r_new r_list menor TIPO mayor puntocoma
                 { $$ = Lista($3, $5, $10); }
 ;
 
@@ -580,7 +394,7 @@ S_SWITCH
         : r_switch parA E parB llaveA CASES S_DEFAULT llaveB
                 { $$ = Switch($3, $6, $7); }
         | r_switch parA E parB llaveA CASES llaveB
-                { $$ = Switch($3, $6, $7); }
+                { $$ = Switch($3, $6, null); }
         | r_switch parA error llaveB
                 { console.log("Recuperación de error en ",yytext," (",this._$.last_line,",",this._$.last_column,")"); }
 ;
@@ -634,7 +448,7 @@ ASIGNACION
 
 DECLARACION
         : TIPO id igual E
-                { $$ = Declaracion($1, $2, $3); }
+                { $$ = Declaracion($1, $2, $4); }
 ;
 
 S_DO
@@ -651,9 +465,9 @@ S_LLAMADA
 
 LLAMADA
         : id parA parB
-                { $$ = Llamada($1, null); }
+                { $$ = Llamada($1, []); }
         | id parA VALORES parB
-                { $$ = Llamada($1, $2); }
+                { $$ = Llamada($1, $3); }
 ;
 
 S_RETURN

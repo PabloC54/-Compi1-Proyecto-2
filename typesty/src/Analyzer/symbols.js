@@ -1,17 +1,17 @@
 const Exec = function (Llamada) {
 	return {
 		Instruccion: "Exec",
-		Llamada: Llamada,
+		Llamada,
 	};
 };
 
 const Funcion = function (Tipo, ID, Parametros, Instrucciones) {
 	return {
 		Instruccion: "Funcion",
-		Tipo: Tipo,
-		ID: ID,
-		Parametros: Parametros,
-		Instrucciones: Instrucciones,
+		Tipo,
+		ID,
+		Parametros,
+		Instrucciones,
 	};
 };
 
@@ -19,89 +19,89 @@ const Metodo = function (ID, Parametros, Instrucciones) {
 	return {
 		Instruccion: "Metodo",
 		Tipo: null,
-		ID: ID,
-		Parametros: Parametros,
-		Instrucciones: Instrucciones,
+		ID,
+		Parametros,
+		Instrucciones,
 	};
 };
 
 const Parametro = function (Tipo, ID) {
 	return {
-		Tipo: Tipo,
-		ID: ID,
+		Tipo,
+		ID,
 	};
 };
 
 const Operacion = function (Tipo, Izquierda, Derecha) {
 	return {
-		Tipo: Tipo,
-		Izquierda: Izquierda,
-		Derecha: Derecha,
+		Tipo,
+		Izquierda,
+		Derecha,
 	};
 };
 
 const Simbolo = function (Tipo, Valor) {
 	return {
-		Tipo: Tipo,
-		Valor: Valor,
+		Tipo,
+		Valor,
 	};
 };
 
-const Declaracion = function (Tipo, ID, E) {
+const Declaracion = function (Tipo, ID, Expresion) {
 	return {
 		Instruccion: "Declaracion",
-		Tipo: Tipo,
-		ID: ID,
-		E: E,
+		Tipo,
+		ID,
+		Expresion,
 	};
 };
 
-const Asignacion = function (ID, E) {
+const Asignacion = function (ID, Expresion) {
 	return {
 		Instruccion: "Asignacion",
-		ID: ID,
-		E: E,
+		ID,
+		Expresion,
 	};
 };
 
-const Ternaria = function (Condicion, E_t, E_f) {
+const Ternaria = function (Condicion, Expresion_true, Expresion_false) {
 	return {
 		Tipo: "Ternaria",
-		Condicion: Condicion,
-		E_t: E_t,
-		E_f: E_f,
+		Condicion,
+		Expresion_true,
+		Expresion_false,
 	};
 };
 
 const Llamada = function (ID, Parametros) {
 	return {
 		Instruccion: "Llamada",
-		ID: ID,
-		Parametros: Parametros,
+		ID,
+		Parametros,
 	};
 };
 
 const Incremento = function (ID) {
 	return {
 		Instruccion: "Incremento",
-		ID: ID,
+		ID,
 	};
 };
 
 const Decremento = function (ID) {
 	return {
 		Instruccion: "Decremento",
-		ID: ID,
+		ID,
 	};
 };
 
-const Vector = function (Tipo, ID, Tipo_i, Tamano, Valores) {
+const Vector = function (Tipo, ID, Tipo_i, Tamaño, Valores) {
 	return {
 		Instruccion: "Declarar_vector",
-		Tipo: Tipo,
-		ID: ID,
-		Tipo_i: Tipo_i,
-		Tamano: Tamano,
+		Tipo,
+		ID,
+		Tipo_i,
+		Tamaño,
 		Valores,
 	};
 };
@@ -109,109 +109,116 @@ const Vector = function (Tipo, ID, Tipo_i, Tamano, Valores) {
 const Lista = function (Tipo, ID) {
 	return {
 		Instruccion: "Declarar_lista",
-		Tipo: Tipo,
-		ID: ID,
+		Tipo,
+		ID,
 	};
 };
 
 const Acceso_vector = function (ID, Index) {
 	return {
 		Instruccion: "Acceso_vector",
-		ID: ID,
-		Index: Index,
+		ID,
+		Index,
 	};
 };
 
 const Acceso_lista = function (ID, Index) {
 	return {
 		Instruccion: "Acceso_lista",
-		ID: ID,
-		Index: Index,
+		ID,
+		Index,
 	};
 };
 
-const Modificacion_vector = function (ID, Index, E) {
+const Modificacion_vector = function (ID, Index, Expresion) {
 	return {
 		Instruccion: "Modificacion_vector",
-		ID: ID,
-		Index: Index,
-		E: E,
+		ID,
+		Index,
+		Expresion,
 	};
 };
 
-const Modificacion_lista = function (ID, Index, E) {
+const Modificacion_lista = function (ID, Index, Expresion) {
 	return {
 		Instruccion: "Modificacion_lista",
-		ID: ID,
-		Index: Index,
-		E: E,
+		ID,
+		Index,
+		Expresion,
 	};
 };
 
-const Add_lista = function (ID, E) {
+const Add_lista = function (ID, Expresion) {
 	return {
 		Instruccion: "Add_lista",
-		ID: ID,
-		E: E,
+		ID,
+		Expresion,
 	};
 };
 
-const If = function (Condicion, Instrucciones_t, Instrucciones_f) {
+const If = function (Condicion, Instrucciones_true, Instrucciones_false) {
 	return {
 		Instruccion: "If",
-		Condicion: Condicion,
-		Instrucciones_t: Instrucciones_t,
-		Instrucciones_f: Instrucciones_f,
+		Condicion,
+		Instrucciones_true,
+		Instrucciones_false,
 	};
 };
 
-const Switch = function (E, Cases, Default) {
+const Switch = function (Expresion, Cases, Default) {
 	return {
 		Instruccion: "Switch",
-		E: E,
-		Cases: Cases,
-		Default: Default,
+		Expresion,
+		Cases,
+		Default,
 	};
 };
 
-const Case = function (E, Instrucciones) {
+const Case = function (Expresion, Instrucciones) {
 	return {
 		Instruccion: "Case",
-		E: E,
-		Instrucciones: Instrucciones,
+		Expresion,
+		Instrucciones,
+	};
+};
+
+const Default = function (Instrucciones) {
+	return {
+		Instruccion: "Default",
+		Instrucciones,
 	};
 };
 
 const While = function (Condicion, Instrucciones) {
 	return {
 		Instruccion: "While",
-		Condicion: Condicion,
-		Instrucciones: Instrucciones,
+		Condicion,
+		Instrucciones,
 	};
 };
 
 const For = function (Inicializacion, Condicion, Actualizacion, Instrucciones) {
 	return {
 		Instruccion: "For",
-		Inicializacion: Inicializacion,
-		Condicion: Condicion,
-		Actualizacion: Actualizacion,
-		Instrucciones: Instrucciones,
+		Inicializacion,
+		Condicion,
+		Actualizacion,
+		Instrucciones,
 	};
 };
 
 const Do_while = function (Condicion, Instrucciones) {
 	return {
 		Instruccion: "Do-while",
-		Condicion: Condicion,
-		Instrucciones: Instrucciones,
+		Condicion,
+		Instrucciones,
 	};
 };
 
-const Return = function (E) {
+const Return = function (Expresion) {
 	return {
 		Instruccion: "Return",
-		E: E,
+		Expresion,
 	};
 };
 
@@ -225,4 +232,36 @@ const Continue = function () {
 	return {
 		Instruccion: "Continue",
 	};
+};
+
+export {
+	Exec,
+	Funcion,
+	Metodo,
+	Parametro,
+	Operacion,
+	Simbolo,
+	Declaracion,
+	Asignacion,
+	Ternaria,
+	Llamada,
+	Incremento,
+	Decremento,
+	Vector,
+	Lista,
+	Acceso_vector,
+	Acceso_lista,
+	Modificacion_vector,
+	Modificacion_lista,
+	Add_lista,
+	If,
+	Switch,
+	Case,
+	Default,
+	While,
+	For,
+	Do_while,
+	Return,
+	Break,
+	Continue,
 };

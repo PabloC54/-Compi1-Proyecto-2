@@ -1,964 +1,812 @@
-// TODO: Cambiar 'Instruccion' por 'Tipo'
+/* eslint-disable no-fallthrough */
 
-import { Simbolo, Operacion } from "./symbols";
+// TODO:
+// * Líneas de los errores semánticos
+// * Acceso a vectores y listas
 
-const pilaCiclos = [];
-const pilaFunciones = [];
+const to_print = []
 
-const Entorno = (Anterior) => {
-	return {
-		Simbolos: new Map(),
-		Anterior,
-	};
-};
+const getPrinted = () => {
+  const temp = [...to_print]
+  to_print.length = 0
+  return temp
+}
 
-const interpret = (INS) => {
-	const global = Entorno(null);
-	return Instrucciones(INS, global);
-};
+const ReservedFunctions = {
+  print: (content) => {
+    if (!['string', 'number', 'boolean'].includes(typeof content))
+      return Error(-1, -1, `La función 'print' no recibe valores de tipo ${typeof content}`)
+    to_print.push(content)
+  },
+  tolower: (content) => {
+    if (!['string'].includes()) return Error(-1, -1, `La función 'toLower' solo recibe cadenas`)
+    return content.toLowerCase()
+  },
+  toupper: (str) => {
+    if (!['string'].includes(typeof val)) return Error(-1, -1, `La función 'toLower' solo recibe cadenas`)
+    return str.toUpperCase()
+  },
+  length: (content) => {
+    return content
+  },
+  truncate: (content) => {
+    return Math.floor(content)
+  },
+  round: (content) => {
+    return Math.round(content)
+  },
+  typeof: (content) => {
+    return true
+  },
+  tostring: (content) => {
+    return content
+  },
+  tochararray: (content) => {
+    return content
+  }
+}
 
-const Instrucciones = (INS, env) => {
-	let value;
+const Error = function (Linea, Columna, Mensaje) {
+  root.errors.push({ Linea, Columna, Tipo: 'Semántico', Mensaje })
+}
 
-	INS.forEach((element) => {
-		switch (element.Instruccion) {
-			case "Exec":
-				//let result = Exec(element.Operacion, env);
-				//console.log(result.Valor);
-				break;
-			case "Declaracion":
-				value = Declaracion(element, env);
-				break;
-			case "Asignacion":
-				value = Asignacion(element, env);
-				break;
-			case "Llamada":
-				value = Llamada(element, env);
-				break;
-			case "Incremento":
-				value = Incremento(element, env);
-				break;
-			case "Decremento":
-				value = Decremento(element, env);
-				break;
-			case "Declarar_vector":
-				value = DeclararVector(element, env);
-				break;
-			case "Declarar_lista":
-				value = DeclararLista(element, env);
-				break;
-			case "Modificacion_vector":
-				value = ModificacionVector(element, env);
-				break;
-			case "Modificacion_lista":
-				value = ModificacionLista(element, env);
-				break;
-			case "Add_lista":
-				value = AddLista(element, env);
-				break;
-			case "If":
-				value = If(element, env);
-				break;
-			case "Switch":
-				value = Switch(element, env);
-				break;
-			case "While":
-				value = While(element, env);
-				break;
-			case "For":
-				value = For(element, env);
-				break;
-			case "Do_while":
-				value = DoWhile(element, env);
-				break;
-			case "Return":
-				if (pilaFunciones.length > 0) {
-					value = element.Expresion;
-				} else {
-					console.log("Intruccion retorno fuera de una funcion");
-				}
-				break;
-			case "Break":
-				if (pilaCiclos.length > 0) {
-					return element;
-				} else {
-					console.log("Intruccion romper fuera de un ciclo");
-				}
-				break;
-			case "Continue":
-				if (pilaCiclos.length > 0) {
-					return element;
-				} else {
-					console.log("Intruccion continue fuera de un ciclo");
-				}
-				break;
-			default:
-				return null;
-		}
+const Operacion = function (Tipo, Izquierda, Derecha) {
+  return {
+    Tipo,
+    Izquierda,
+    Derecha
+  }
+}
 
-		return value;
-	});
-};
+const Simbolo = function (Tipo, Valor) {
+  return {
+    Tipo,
+    Valor
+  }
+}
 
-const Exec = (content, env) => {};
+let root
+const cycles = []
+const functions = []
 
-const Evaluar = (Operacion, env) => {
-	const Valores_retorno = {
-		suma: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-				string: "string",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-				string: "string",
-			},
-			char: {
-				int: "int",
-				double: "double",
-				char: "string",
-				string: "string",
-			},
-			string: {
-				int: "string",
-				double: "string",
-				boolean: "string",
-				char: "string",
-				string: "string",
-			},
-		},
-		resta: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-			},
-			char: {
-				int: "int",
-				double: "double",
-			},
-			string: {},
-		},
-		multiplicacion: {
-			int: {
-				int: "int",
-				double: "double",
-				char: "int",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				char: "double",
-			},
-			boolean: {},
-			char: {
-				int: "int",
-				double: "double",
-			},
-			string: {},
-		},
-		division: {
-			int: {
-				int: "double",
-				double: "double",
-				char: "double",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				char: "double",
-			},
-			boolean: {},
-			char: {
-				int: "double",
-				double: "double",
-			},
-			string: {},
-		},
-		potencia: {
-			int: {
-				int: "int",
-				double: "double",
-			},
-			double: {
-				int: "double",
-				double: "double",
-			},
-			boolean: {},
-			char: {},
-			string: {},
-		},
-		modulo: {
-			int: {
-				int: "double",
-				double: "double",
-			},
-			double: {
-				int: "double",
-				double: "double",
-			},
-			boolean: {},
-			char: {},
-			string: {},
-		},
-		negacion: {
-			int: "int",
-			double: "double",
-			boolean: {},
-			char: {},
-			string: {},
-		},
-		igualacion: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		diferenciacion: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		menor: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		menorigual: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		mayor: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		mayorigual: {
-			int: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			double: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			boolean: {
-				boolean: "boolean",
-			},
-			char: {
-				int: "boolean",
-				double: "boolean",
-				char: "boolean",
-			},
-			string: {
-				string: "boolean",
-			},
-		},
-		or: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-				string: "string",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			char: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "string",
-				string: "string",
-			},
-			string: {
-				int: "string",
-				double: "string",
-				boolean: "string",
-				char: "string",
-				string: "string",
-			},
-		},
-		and: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-				string: "string",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			char: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "string",
-				string: "string",
-			},
-			string: {
-				int: "string",
-				double: "string",
-				boolean: "string",
-				char: "string",
-				string: "string",
-			},
-		},
-		not: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-				string: "string",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			char: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "string",
-				string: "string",
-			},
-			string: {
-				int: "string",
-				double: "string",
-				boolean: "string",
-				char: "string",
-				string: "string",
-			},
-		},
-		new: {
-			int: {
-				int: "int",
-				double: "double",
-				boolean: "int",
-				char: "int",
-				string: "string",
-			},
-			double: {
-				int: "double",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			boolean: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "double",
-				string: "string",
-			},
-			char: {
-				int: "int",
-				double: "double",
-				boolean: "double",
-				char: "string",
-				string: "string",
-			},
-			string: {
-				int: "string",
-				double: "string",
-				boolean: "string",
-				char: "string",
-				string: "string",
-			},
-		},
-	};
+const Environment = (Anterior = null) => {
+  return {
+    Simbolos: {},
+    Anterior
+  }
+}
 
-	switch (Operacion.Tipo) {
-		case "int":
-			return Simbolo(Operacion.Tipo, parseInt(Operacion.Izquierda));
-		case "double":
-			return Simbolo(Operacion.Tipo, parseFloat(Operacion.Izquierda));
-		case "char":
-			return Simbolo(Operacion.Tipo, Operacion.Izquierda);
-		case "string":
-			return Simbolo(Operacion.Tipo, Operacion.Izquierda);
-		case "boolean":
-			return Simbolo(Operacion.Tipo, Boolean(Operacion.Izquierda));
-		case "id":
-			let temp = env;
-			while (temp) {
-				if (temp.Simbolos.has(Operacion.Izquierda)) {
-					let valorID = temp.Simbolos.get(Operacion.Izquierda);
-					return Simbolo(valorID.Tipo, valorID.Izquierda); // FIXME:
-				}
-				temp = temp.Anterior;
-			}
-			console.log(`No existe la variable '${Operacion.Izquierda}`);
-			return Simbolo("error", "@error@");
-		case "Llamada":
-			return Llamada(Operacion, env);
-		case "Acceso_vector":
-			return Llamada(Operacion, env);
-		case "Acceso_lista":
-			return Llamada(Operacion, env);
+const interpret = (content) => {
+  root = content
 
-		default:
-	}
+  let toExecute
+  content.body.forEach((Instruction) => {
+    if (Instruction.Tipo === 'Exec') {
+      if (toExecute) return Error(-1, -1, "Se encontró más de una instrucción 'Exec'")
 
-	let Izquierda = Evaluar(Operacion.Izquierda, env);
-	let Derecha = Operacion.Derecha ? Evaluar(Operacion.Derecha, env) : null;
+      toExecute = Instruction
+    }
+  })
 
-	let tipoRetorno =
-		Valores_retorno[Operacion.Tipo][Izquierda.Tipo][Derecha.Tipo] || "error";
+  if (!toExecute) return Error(-1, -1, "No se encontró una instrucción 'Exec'")
 
-	if (tipoRetorno === "error") {
-		console.log(
-			`No se puede operar '${Operacion.Tipo}' con '${Izquierda.Tipo}' y '${Derecha.Tipo}'`
-		);
-		return;
-	}
+  const global = Environment()
+  return $Llamada(toExecute.Llamada, global)
+}
 
-	switch (Operacion.Tipo) {
-		case "suma":
-			return Simbolo(tipoRetorno, Izquierda.Valor + Derecha.Valor);
-		case "resta":
-			return Simbolo(tipoRetorno, Izquierda.Valor - Derecha.Valor, tipoRetorno);
-		case "negacion":
-			return Simbolo(tipoRetorno, -Izquierda.Valor);
-		case "multiplicacion":
-			return Simbolo(tipoRetorno, Izquierda.Valor * Derecha.Valor);
-		case "division":
-			return Simbolo(tipoRetorno, Izquierda.Valor / Derecha.Valor);
-		case "modulo":
-			return Simbolo(Izquierda.Valor % Derecha.Valor, tipoRetorno);
-		case "not":
-			switch (tipoRetorno) {
-				case "boolean":
-					return Simbolo(!Izquierda.Valor, tipoRetorno);
-			}
-		case "and":
-			switch (tipoRetorno) {
-				case "boolean":
-					return Simbolo(Izquierda.Valor && Derecha.Valor, tipoRetorno);
-			}
-		case "or":
-			switch (tipoRetorno) {
-				case "boolean":
-					return Simbolo(Izquierda.Valor || Derecha.Valor, tipoRetorno);
-			}
-		case ">":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor > Derecha.Valor, "boolean");
-			}
-		case "<":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor < Derecha.Valor, "boolean");
-			}
-		case ">=":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor >= Derecha.Valor, "boolean");
-			}
-		case "<=":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor <= Derecha.Valor, "boolean");
-			}
-		case "==":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor == Derecha.Valor, "boolean");
-			}
-		case "!=":
-			switch (tipoRetorno) {
-				case "string":
-				case "int":
-				case "boolean":
-					return Simbolo(Izquierda.Valor != Derecha.Valor, "boolean");
-			}
-		default:
-	}
-	console.log(
-		"Tipos incompatibles " +
-			(Izquierda ? Izquierda.Tipo : "") +
-			" y " +
-			(Derecha ? Derecha.Tipo : "")
-	);
-	return Simbolo("@error@", "error");
-};
+const $Instructions = (INS, env) => {
+  const Instructions = {
+    Declaracion: $Declaracion,
+    Asignacion: $Asignacion,
+    Llamada: $Llamada,
+    Incremento: $Decremento,
+    Declarar_vector: $DeclararVector,
+    Declarar_lista: $DeclararLista,
+    Modificacion_vector: $ModificacionVector,
+    $ModificacionLista: $ModificacionLista,
+    Add_lista: $AddLista,
+    If: $If,
+    Switch: $Switch,
+    While: $While,
+    For: $For,
+    Do_while: $DoWhile,
+    Funcion: $Funcion
+  }
 
-const Declaracion = (content, env) => {
-	if (env.Simbolos.has(content.ID)) {
-		console.log(`La variable ${content.ID} ya ha sido declarada`);
-		return;
-	}
+  for (let Instruction of INS) {
+    if (Instructions[Instruction.Tipo]) {
+      Instructions[Instructions](Instruction, env)
+      continue
+    }
 
-	let valor;
+    let value
+    if (Instruction.Tipo === 'Return') {
+      if (!functions) return Error(-1, -1, 'Instruccion return fuera de una función')
+      value = $Evaluar(Instruction)
+    } else if (Instruction.Tipo === 'Break') {
+      if (!cycles) return Error(-1, -1, 'Instruccion break fuera de una función')
+    } else if (Instruction.Tipo === 'Continue') {
+      if (!cycles) return Error(-1, -1, 'Instruccion continue fuera de una función')
+    }
 
-	if (content.Expresion) {
-		valor = Evaluar(content.Expresion, env);
-		if (valor.Tipo !== content.Tipo) {
-			console.log(
-				`El tipo de la variable '${content.ID}' no coincide con el valor declarado`
-			);
-			return;
-		}
-	} else
-		switch (content.Tipo) {
-			case "int":
-				valor = Simbolo(content.Tipo, 0);
-				break;
-			case "double":
-				valor = Simbolo(content.Tipo, 0.0);
-				break;
-			case "boolean":
-				valor = Simbolo(content.Tipo, true);
-				break;
-			case "char":
-				valor = Simbolo(content.Tipo, "\u0000");
-				break;
-			case "string":
-				valor = Simbolo(content.Tipo, "");
-				break;
-			default:
-		}
+    return value
+  }
+}
 
-	env.Simbolos.set(content.ID, valor);
-};
+const $Evaluar = (Operacion, env) => {
+  const return_values = {
+    suma: {
+      int: {
+        int: 'int',
+        double: 'double',
+        boolean: 'int',
+        char: 'int',
+        string: 'string'
+      },
+      double: {
+        int: 'double',
+        double: 'double',
+        boolean: 'double',
+        char: 'double',
+        string: 'string'
+      },
+      boolean: {
+        int: 'int',
+        double: 'double',
+        string: 'string'
+      },
+      char: {
+        int: 'int',
+        double: 'double',
+        char: 'string',
+        string: 'string'
+      },
+      string: {
+        int: 'string',
+        double: 'string',
+        boolean: 'string',
+        char: 'string',
+        string: 'string'
+      }
+    },
+    resta: {
+      int: {
+        int: 'int',
+        double: 'double',
+        boolean: 'int',
+        char: 'int'
+      },
+      double: {
+        int: 'double',
+        double: 'double',
+        boolean: 'double',
+        char: 'double'
+      },
+      boolean: {
+        int: 'int',
+        double: 'double'
+      },
+      char: {
+        int: 'int',
+        double: 'double'
+      },
+      string: {}
+    },
+    multiplicacion: {
+      int: {
+        int: 'int',
+        double: 'double',
+        char: 'int'
+      },
+      double: {
+        int: 'double',
+        double: 'double',
+        char: 'double'
+      },
+      boolean: {},
+      char: {
+        int: 'int',
+        double: 'double'
+      },
+      string: {}
+    },
+    division: {
+      int: {
+        int: 'double',
+        double: 'double',
+        char: 'double'
+      },
+      double: {
+        int: 'double',
+        double: 'double',
+        char: 'double'
+      },
+      boolean: {},
+      char: {
+        int: 'double',
+        double: 'double'
+      },
+      string: {}
+    },
+    potencia: {
+      int: {
+        int: 'int',
+        double: 'double'
+      },
+      double: {
+        int: 'double',
+        double: 'double'
+      },
+      boolean: {},
+      char: {},
+      string: {}
+    },
+    modulo: {
+      int: {
+        int: 'double',
+        double: 'double'
+      },
+      double: {
+        int: 'double',
+        double: 'double'
+      },
+      boolean: {},
+      char: {},
+      string: {}
+    },
+    igualacion: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    diferenciacion: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    menor: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    menorigual: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    mayor: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    mayorigual: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      boolean: {
+        boolean: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        char: 'boolean'
+      },
+      string: {
+        string: 'boolean'
+      }
+    },
+    or: {
+      int: {
+        int: 'int',
+        double: 'double',
+        boolean: 'int',
+        char: 'int',
+        string: 'string'
+      },
+      double: {
+        int: 'double',
+        double: 'double',
+        boolean: 'double',
+        char: 'double',
+        string: 'string'
+      },
+      boolean: {
+        int: 'int',
+        double: 'double',
+        boolean: 'double',
+        char: 'double',
+        string: 'string'
+      },
+      char: {
+        int: 'int',
+        double: 'double',
+        boolean: 'double',
+        char: 'string',
+        string: 'string'
+      },
+      string: {
+        int: 'string',
+        double: 'string',
+        boolean: 'string',
+        char: 'string',
+        string: 'string'
+      }
+    },
+    and: {
+      int: {
+        int: 'boolean',
+        double: 'boolean',
+        boolean: 'boolean',
+        char: 'boolean',
+        string: 'boolean'
+      },
+      double: {
+        int: 'boolean',
+        double: 'boolean',
+        boolean: 'boolean',
+        char: 'boolean',
+        string: 'boolean'
+      },
+      boolean: {
+        int: 'boolean',
+        double: 'boolean',
+        boolean: 'boolean',
+        char: 'boolean',
+        string: 'boolean'
+      },
+      char: {
+        int: 'boolean',
+        double: 'boolean',
+        boolean: 'boolean',
+        char: 'boolean',
+        string: 'boolean'
+      },
+      string: {
+        int: 'boolean',
+        double: 'boolean',
+        boolean: 'boolean',
+        char: 'boolean',
+        string: 'boolean'
+      }
+    }
+  }
 
-const Asignacion = (content, env) => {
-	let valor = Evaluar(content.Expresion, env);
-	let env_temp = env;
+  const return_values_unary = {
+    negacion: {
+      int: 'boolean',
+      double: 'boolean'
+    },
+    not: {
+      int: 'boolean',
+      double: 'boolean',
+      boolean: 'boolean',
+      char: 'boolean',
+      string: 'boolean'
+    }
+  }
 
-	while (env_temp) {
-		if (!env_temp.Simbolos.has(content.ID)) {
-			env_temp = env_temp.Anterior;
-			continue;
-		}
+  if (['int', 'double', 'char', 'string', 'boolean'].includes(Operacion.Tipo)) return Operacion
 
-		let actual = env_temp.Simbolos.get(content.ID);
+  switch (Operacion.Tipo) {
+    case 'id':
+      let temp = env
+      while (temp) {
+        if (temp.Simbolos[Operacion.Valor]) return temp.Simbolos[Operacion.Valor]
 
-		if (actual.Tipo !== valor.Tipo) {
-			console.log(
-				`No se puede asignar un valor ${valor.Tipo} a '${content.ID}'`
-			);
-			return;
-		}
+        temp = temp.Anterior
+      }
+      return Error(-1, -1, `No se ha declarado '${Operacion.Valor}`)
+    case 'Llamada':
+      return $Llamada(Operacion, env)
+    //case 'Acceso_vector': //TODO: agregar accesos
+    //  return $Acceso(Operacion, env)
+    //case 'Acceso_lista':
+    //  return $Llamada(Operacion, env)
+    default:
+  }
 
-		env_temp.Simbolos.set(content.ID, valor);
-		return;
-	}
-	console.log("No se encontro la variable ", content.ID);
-};
+  let Izquierda = $Evaluar(Operacion.Izquierda, env)
+  let Derecha = Operacion.Derecha ? $Evaluar(Operacion.Derecha, env) : null
 
-const Llamada = (content, env) => {
-	let nombrefuncion = content.ID + "$";
-	let Resueltos = [];
-	for (let param of content.Params) {
-		let valor = Evaluar(param, env);
-		nombrefuncion += valor.Tipo;
-		Resueltos.push(valor);
-	}
-	let temp = env;
-	let simboloFuncion = null;
-	while (temp != null) {
-		if (temp.Simbolos.has(nombrefuncion)) {
-			// evaluar el resultado de la expresión
-			simboloFuncion = temp.Simbolos.get(nombrefuncion);
-			break;
-		}
-		temp = temp.Anterior;
-	}
-	if (!simboloFuncion) {
-		console.log(
-			"No se encontró la funcion " +
-				content.ID +
-				" con esa combinacion de parametros"
-		);
-		return Simbolo("@error@", "error");
-	}
-	pilaFunciones.push(content.ID);
-	let nuevo = Entorno(global);
-	let index = 0;
-	for (let crear of simboloFuncion.Parametros) {
-		crear.Expresion = Resueltos[index];
-		Declaracion(crear, nuevo);
-		index++;
-	}
-	let retorno = Simbolo("@error@", "error");
-	let result = Instrucciones(simboloFuncion.Instrucciones, nuevo);
-	if (result) {
-		if (result.Tipo === "void") {
-			if (simboloFuncion.Tipo !== "void") {
-				console.log("No se esperaba un retorno");
-				retorno = Simbolo("@error@", "error");
-			} else {
-				retorno = Simbolo("@vacio@", "vacio");
-			}
-		} else {
-			let exp = Evaluar(result, nuevo);
-			if (exp.Tipo !== simboloFuncion.Tipo) {
-				console.log("El tipo del retorno no coincide");
-				retorno = Simbolo("@error@", "error");
-			} else {
-				retorno = exp;
-			}
-		}
-	} else {
-		if (simboloFuncion.Tipo != "void") {
-			console.log("Se esperaba un retorno");
-			retorno = Simbolo("@error@", "error");
-		} else {
-			retorno = Simbolo("@vacio@", "vacio");
-		}
-	}
-	pilaFunciones.pop();
-	return retorno;
-};
+  let return_type = return_values[Operacion.Tipo]
+    ? return_values[Operacion.Tipo][Izquierda.Tipo][Derecha.Tipo]
+    : return_values_unary[Operacion.Tipo][Izquierda.Tipo]
 
-const Incremento = (content, env) => {};
+  if (!return_type) return Error(-1, -1, `No se puede aplicar '${Operacion.Tipo}' a '${Izquierda.Tipo}' y '${Derecha.Tipo}'`)
 
-const Decremento = (content, env) => {};
+  const operations = {
+    suma: (izq, der) => izq.Valor + der.Valor,
+    resta: (izq, der) => izq.Valor - der.Valor,
+    multiplicacion: (izq, der) => izq.Valor * der.Valor,
+    division: (izq, der) => izq.Valor / der.Valor,
+    potencia: (izq, der) => izq.Valor ** der.Valor,
+    modulo: (izq, der) => izq.Valor % der.Valor,
+    negacion: (izq, _der) => -izq.Valor,
+    not: (izq, _der) => !izq.Valor,
+    and: (izq, der) => izq.Valor && der.Valor,
+    or: (izq, der) => izq.Valor || der.Valor,
+    mayor: (izq, der) => izq.Valor > der.Valor,
+    menor: (izq, der) => izq.Valor < der.Valor,
+    mayorigual: (izq, der) => izq.Valor >= der.Valor,
+    menorigual: (izq, der) => izq.Valor <= der.Valor,
+    igualacion: (izq, der) => izq.Valor === der.Valor,
+    diferenciacion: (izq, der) => izq.Valor !== der.Valor
+  }
 
-const DeclararVector = (content, env) => {};
+  return Simbolo(return_type, operations[Operacion.Tipo](Izquierda, Derecha))
+}
 
-const DeclararLista = (content, env) => {};
+const $Declaracion = (content, env) => {
+  if (env.Simbolos[content.ID]) return Error(-1, -1, `La variable '${content.ID}' ya ha sido declarada`)
 
-const ModificacionVector = (content, env) => {};
+  let value
 
-const ModificacionLista = (content, env) => {};
+  const default_values = {
+    int: 0,
+    double: 0.0,
+    boolean: true,
+    char: '\u0000',
+    string: ''
+  }
 
-const AddLista = (content, env) => {};
+  if (content.Expresion) {
+    value = $Evaluar(content.Expresion, env)
+    if (value.Tipo !== content.Tipo)
+      return Error(
+        -1,
+        -1,
+        `El tipo de la variable '${content.ID}' (${content.Tipo}) no coincide con el valor asignado (${value.Tipo})`
+      )
+  } else value = Simbolo(content.Tipo, default_values(content.Tipo))
 
-const If = (content, env) => {
-	let result = Evaluar(content.Condicion, env);
+  env.Simbolos.content.ID = value
+}
 
-	if (result.Tipo !== "boolean") {
-		console.log("Se esperaba una condicion dentro del if");
-		return;
-	}
+const $Asignacion = (content, env) => {
+  let value = $Evaluar(content.Expresion, env)
+  let env_temp = env
 
-	let nuevo = Entorno(env);
+  while (env_temp) {
+    if (!env_temp.Simbolos[content.ID]) {
+      env_temp = env_temp.Anterior
+      continue
+    }
 
-	if (result.Valor) {
-		return Instrucciones(content.Instrucciones_true, nuevo);
-	} else if (content.Instrucciones_false) {
-		return Instrucciones(content.Instrucciones_false, nuevo);
-	}
-};
+    let actual = env_temp.Simbolos.get(content.ID)
 
-const Switch = (content, env) => {
-	pilaCiclos.push("switch");
+    if (actual.Tipo !== value.Tipo)
+      return Error(-1, -1, `No se puede asignar un valor ${value.Tipo} a '${content.ID}' (${actual.Tipo})`)
 
-	let ejecutado = false;
-	let nuevo = Entorno(env);
+    env_temp.Simbolos.set(content.ID, value)
+    return
+  }
+  console.log('No se encontro la variable ', content.ID)
+}
 
-	content.Cases.forEach((Case) => {
-		let condicion = Evaluar(
-			Operacion("igualacion", content.Expresion, Case.Expresion),
-			env
-		);
+const $Llamada = (content, env) => {
+  const valores = []
 
-		if (condicion.Tipo !== "boolean") {
-			pilaCiclos.pop();
-			return;
-		}
+  content.Parametros.forEach((Parametro) => {
+    valores.push($Evaluar(Parametro, env))
+  })
 
-		if (condicion.Valor || ejecutado) {
-			ejecutado = true;
-			let result = Instrucciones(Case.Instrucciones, nuevo);
-			if (result) {
-				pilaCiclos.pop();
+  let temp_env = env
+  let funcion
 
-				if (result.Instruccion === "Break") return result;
-				return;
-			}
-		}
+  while (temp_env) {
+    if (temp_env.Simbolos[content.ID]) {
+      funcion = temp_env.Simbolos.get(content.ID)
 
-		if (content.Default && !ejecutado) {
-			Instrucciones(content.Default.Instrucciones, nuevo);
-		}
-		pilaCiclos.pop();
-		return;
-	});
-};
+      if (valores.length !== funcion.Parametros.length)
+        return Error(-1, -1, `Se esperaban ${funcion.Parametros.length} parámetros para '${content.ID}'`)
 
-const While = (content, env) => {
-	pilaCiclos.push("while");
-	let nuevo = Entorno(env);
+      funcion.Parametros.forEach((Parametro, i) => {
+        if (Parametro.Tipo !== ReservedFunctions.typeof(valores[i]))
+          return Error(-1, -1, `Se esperaba un parámetro ${Parametro.Tipo} para '${Parametro.ID}' (${content.ID})`)
+        return
+      })
+      break
+    }
+    temp_env = temp_env.Anterior
+  }
 
-	while (true) {
-		let condicion = Evaluar(content.Condicion, env);
+  if (!funcion) return Error(-1, -1, `No se encontró la función o método '${content.ID}'`)
 
-		if (condicion.Tipo !== "boolean") {
-			console.log("Se esperaba una condicion dentro del Mientras");
-			pilaCiclos.pop();
-			return;
-		}
+  functions.push(content.ID)
+  let nuevo_env = Environment(global)
 
-		if (condicion.Valor) {
-			let result = Instrucciones(content.Instrucciones, nuevo);
-			if (result) {
-				pilaCiclos.pop();
+  funcion.Parametros.forEach((Parametro, i) => {
+    Parametro.Expresion = valores[i]
+    $Declaracion(Parametro, nuevo_env)
+  })
 
-				if (result.Instruccion === "Break") return;
-				//return result;
-			}
-		} else {
-			return;
-		}
-	}
-};
+  let result = $Instructions(funcion.Instrucciones, nuevo_env)
+  let retorno
 
-const For = (content, env) => {
-	pilaCiclos.push("for");
-	let nuevo = Entorno(env);
+  if (funcion.Tipo === 'funcion') {
+    let exp = $Evaluar(result, nuevo_env)
+    if (exp.Tipo !== funcion.Tipo) return Error(-1, -1, `La función '${content.ID}' debe retornar un ${content.Tipo}`)
+    else retorno = exp
+  } else {
+    if (result) return Error(-1, -1, 'No se esperaba un retorno')
+    else retorno = Simbolo('@vacio@', 'vacio')
+  }
 
-	if (content.Inicializacion.Instruccion === "Declaracion")
-		Declaracion(content.Inicializacion, nuevo);
-	else Asignacion(content.Inicializacion, nuevo);
+  functions.pop()
+  return retorno
+}
 
-	//mientras no se llegue al hasta
-	let paso = Evaluar(content.Actualizacion, env);
-	let hasta = Evaluar(content.Condicion, env);
-	let simbolo = Simbolo(content.ExpDesde.ID, "ID");
-	if (!(paso.Tipo === "int" && hasta.Tipo == "int")) {
-		pilaCiclos.pop();
-		console.log("Se esperaban valores numericos en el Desde");
-		return;
-	}
-	while (true) {
-		let inicio = Evaluar(simbolo, nuevo);
-		if (inicio.Tipo != "int") {
-			pilaCiclos.pop();
-			console.log("Se esperabam valores numericos en el Desde");
-			return;
-		}
-		if (paso.Valor > 0) {
-			if (inicio.Valor <= hasta.Valor) {
-				let result = Instrucciones(content.Instrucciones, nuevo);
-				if (result && result.Instruccion == "romper") {
-					break;
-				} else if (result) {
-					pilaCiclos.pop();
-					return result;
-				}
-			} else {
-				break;
-			}
-		} else {
-			if (inicio.Valor >= hasta.Valor) {
-				let result = Instrucciones(content.Instrucciones, nuevo);
-				if (result && result.Instruccion == "romper") {
-					break;
-				}
-			} else {
-				break;
-			}
-		}
-		Asignacion(
-			Asignacion(content.ExpDesde.ID, Operacion(simbolo, paso, "+")),
-			nuevo
-		);
-	}
-	pilaCiclos.pop();
-	return;
-};
+const $Incremento = (content, env) => {}
 
-const DoWhile = (content, env) => {
-	pilaCiclos.push("do-while");
-	let nuevo = Entorno(env);
+const $Decremento = (content, env) => {}
 
-	while (true) {
-		let condicion = Evaluar(content.Condicion, env);
+const $DeclararVector = (content, env) => {}
 
-		if (condicion.Tipo !== "boolean") {
-			console.log("Se esperaba una condicion dentro del do-while");
-			pilaCiclos.pop();
-			return;
-		}
+const $DeclararLista = (content, env) => {}
 
-		if (condicion.Valor) {
-			let result = Instrucciones(content.Instrucciones, nuevo);
-			if (result) {
-				pilaCiclos.pop();
+const $ModificacionVector = (content, env) => {}
 
-				if (result.Instruccion === "Break") return;
-				//return result;
-			}
-		} else {
-			return;
-		}
-	}
-};
+const $ModificacionLista = (content, env) => {}
 
-const Funcion = (content, env) => {
-	let nombrefuncion = "$" + content.ID;
-	content.Parametros.forEach((Parametro) => (nombrefuncion += Parametro.Tipo));
+const $AddLista = (content, env) => {}
 
-	if (env.Simbolos.has(nombrefuncion)) {
-		console.log("La funcion ", content.ID, " ya ha sido declarada");
-		return;
-	}
+const $If = (content, env) => {
+  let result = $Evaluar(content.Condicion, env)
 
-	env.Simbolos.set(nombrefuncion, content);
-};
+  if (result.Tipo !== 'boolean') return Error(-1, -1, 'Se esperaba una condicion dentro del if')
 
-export default interpret;
+  let new_env = Environment(env)
+
+  if (result.Valor) {
+    return $Instructions(content.Instrucciones_true, new_env)
+  } else if (content.Instrucciones_false) {
+    return $Instructions(content.Instrucciones_false, new_env)
+  }
+}
+
+const $Switch = (content, env) => {
+  cycles.push('switch')
+
+  let ejecutado = false
+  let nuevo = Environment(env)
+
+  content.Cases.forEach((Case) => {
+    let condicion = $Evaluar(Operacion('igualacion', content.Expresion, Case.Expresion), env)
+
+    if (condicion.Tipo !== 'boolean') {
+      cycles.pop()
+      return
+    }
+
+    if (condicion.Valor || ejecutado) {
+      ejecutado = true
+      let result = $Instructions(Case.Instrucciones, nuevo)
+      if (result) {
+        cycles.pop()
+
+        if (result.Tipo === 'Break') return result
+        return
+      }
+    }
+
+    if (content.Default && !ejecutado) {
+      $Instructions(content.Default.Instrucciones, nuevo)
+    }
+    cycles.pop()
+    return
+  })
+}
+
+const $While = (content, env) => {
+  cycles.push('while')
+  let nuevo = Environment(env)
+
+  while (true) {
+    let condicion = $Evaluar(content.Condicion, env)
+
+    if (condicion.Tipo !== 'boolean') {
+      console.log('Se esperaba una condicion dentro del Mientras')
+      cycles.pop()
+      return
+    }
+
+    if (condicion.Valor) {
+      let result = $Instructions(content.Instrucciones, nuevo)
+      if (result) {
+        cycles.pop()
+
+        if (result.Tipo === 'Break') return
+        //return result;
+      }
+    } else {
+      return
+    }
+  }
+}
+
+const $For = (content, env) => {
+  cycles.push('for')
+  let nuevo = Environment(env)
+
+  if (content.Inicializacion.Tipo === 'Declaracion') $Declaracion(content.Inicializacion, nuevo)
+  else $Asignacion(content.Inicializacion, nuevo)
+
+  //mientras no se llegue al hasta
+  let paso = $Evaluar(content.Actualizacion, env)
+  let hasta = $Evaluar(content.Condicion, env)
+  let simbolo = Simbolo(content.ExpDesde.ID, 'ID')
+  if (!(paso.Tipo === 'int' && hasta.Tipo === 'int')) {
+    cycles.pop()
+    console.log('Se esperaban valores numericos en el Desde')
+    return
+  }
+  while (true) {
+    let inicio = $Evaluar(simbolo, nuevo)
+    if (inicio.Tipo !== 'int') {
+      cycles.pop()
+      console.log('Se esperabam valores numericos en el Desde')
+      return
+    }
+    if (paso.Valor > 0) {
+      if (inicio.Valor <= hasta.Valor) {
+        let result = $Instructions(content.Instrucciones, nuevo)
+        if (result && result.Tipo === 'Break') {
+          break
+        } else if (result) {
+          cycles.pop()
+          return result
+        }
+      } else {
+        break
+      }
+    } else {
+      if (inicio.Valor >= hasta.Valor) {
+        let result = $Instructions(content.Instrucciones, nuevo)
+        if (result && result.Tipo === 'Break') {
+          break
+        }
+      } else {
+        break
+      }
+    }
+    $Asignacion($Asignacion(content.ExpDesde.ID, Operacion(simbolo, paso, '+')), nuevo)
+  }
+  cycles.pop()
+  return
+}
+
+const $DoWhile = (content, env) => {
+  cycles.push('do-while')
+  let nuevo = Environment(env)
+
+  while (true) {
+    let condicion = $Evaluar(content.Condicion, env)
+
+    if (condicion.Tipo !== 'boolean') {
+      console.log('Se esperaba una condicion dentro del do-while')
+      cycles.pop()
+      return
+    }
+
+    if (condicion.Valor) {
+      let result = $Instructions(content.Instrucciones, nuevo)
+      if (result) {
+        cycles.pop()
+
+        if (result.Tipo === 'Break') return
+        //return result;
+      }
+    } else {
+      return
+    }
+  }
+}
+
+const $Funcion = (content, env) => {
+  console.log('nombre: ', content.ID)
+
+  if (ReservedFunctions[content.ID]) return Error(-1, -1, `La función '${content.ID}' es una función de Typesty`)
+
+  if (env.Simbolos[content.ID]) return Error(-1, -1, `La función '${content.ID}' ya ha sido declarada`)
+
+  env.Simbolos.set(content.ID, content)
+}
+
+export { interpret, getPrinted }

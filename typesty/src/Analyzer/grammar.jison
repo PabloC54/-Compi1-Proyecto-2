@@ -1,254 +1,20 @@
 %{
-  const Errors = []
+  const s = require('/home/pablo/Documentos/src/Universidad/-Compi1-Proyecto-2/typesty/src/Analyzer/symbols.js')
+  const errors = []
 
-  const Error = function (Linea, Columna, Tipo, Mensaje){
-    Errors.push({
+  const Error = function (Linea, Columna, Tipo, Mensaje) {
+    errors.push({
       Linea,
       Columna,
       Tipo,
-      Mensaje,
+      Mensaje
     })
   }
 
   const getErrores = function () {
-    const temp = [...Errors];
-    Errors.length = 0;
+    const temp = [...errors];
+    errors.length = 0;
     return temp;
-  }
-
-  const Exec = function (Llamada) {
-    return {
-      Tipo: 'Exec',
-      Llamada,
-    }
-  }
-
-  const Funcion = function (Tipo_retorno, ID, Parametros, Instrucciones) {
-    return {
-      Tipo: 'Funcion',
-      Tipo_retorno,
-      ID,
-      Parametros,
-      Instrucciones,
-    }
-  }
-
-  const Metodo = function (ID, Parametros, Instrucciones) {
-    return {
-      Tipo: 'Metodo',
-      ID,
-      Parametros,
-      Instrucciones,
-    }
-  }
-
-  const Parametro = function (Tipo_variable, ID) {
-    return {
-      Tipo_variable,
-      ID,
-    }
-  }
-
-  const Operacion = function (Tipo, Izquierda, Derecha = null) {
-    return {
-      Tipo,
-      Izquierda,
-      Derecha,
-    }
-  }
-
-  const Simbolo = function (Tipo, Valor) {
-    return {
-      Tipo,
-      Valor,
-    }
-  }
-
-  const Declaracion = function (Tipo_variable, ID, Expresion) {
-    return {
-      Tipo: 'Declaracion',
-      Tipo_variable,
-      ID,
-      Expresion,
-    }
-  }
-
-  const Asignacion = function (ID, Expresion) {
-    return {
-      Tipo: 'Asignacion',
-      ID,
-      Expresion,
-    }
-  }
-
-  const Ternaria = function (Condicion, Expresion_true, Expresion_false) {
-    return {
-      Tipo: 'Ternaria',
-      Condicion,
-      Expresion_true,
-      Expresion_false,
-    }
-  }
-
-  const Llamada = function (ID, Parametros) {
-    return {
-      Tipo: 'Llamada',
-      ID,
-      Parametros,
-    }
-  }
-
-  const Incremento = function (ID) {
-    return {
-      Tipo: 'Incremento',
-      ID,
-    }
-  }
-
-  const Decremento = function (ID) {
-    return {
-      Tipo: 'Decremento',
-      ID,
-    }
-  }
-
-  const Vector = function (Tipo_vector, ID, Tipo_i, Tamaño, Valores) {
-    return {
-      Tipo: 'Declarar_vector',
-      Tipo_vector,
-      ID,
-      Tipo_i,
-      Tamaño,
-      Valores,
-    }
-  }
-
-  const Lista = function (Tipo_lista, ID) {
-    return {
-      Tipo: 'Declarar_lista',
-      Tipo_lista,
-      ID,
-    }
-  }
-
-  const Acceso_vector = function (ID, Index) {
-    return {
-      Tipo: 'Acceso_vector',
-      ID,
-      Index,
-    }
-  }
-
-  const Acceso_lista = function (ID, Index) {
-    return {
-      Tipo: 'Acceso_lista',
-      ID,
-      Index,
-    }
-  }
-
-  const Modificacion_vector = function (ID, Index, Expresion) {
-    return {
-      Tipo: 'Modificacion_vector',
-      ID,
-      Index,
-      Expresion,
-    }
-  }
-
-  const Modificacion_lista = function (ID, Index, Expresion) {
-    return {
-      Tipo: 'Modificacion_lista',
-      ID,
-      Index,
-      Expresion,
-    }
-  }
-
-  const Add_lista = function (ID, Expresion) {
-    return {
-      Tipo: 'Add_lista',
-      ID,
-      Expresion,
-    }
-  }
-
-  const If = function (Condicion, Instrucciones_true, Instrucciones_false) {
-    return {
-      Tipo: 'If',
-      Condicion,
-      Instrucciones_true,
-      Instrucciones_false,
-    }
-  }
-
-  const Switch = function (Expresion, Cases, Default) {
-    return {
-      Tipo: 'Switch',
-      Expresion,
-      Cases,
-      Default,
-    }
-  }
-
-  const Case = function (Expresion, Instrucciones) {
-    return {
-      Tipo: 'Case',
-      Expresion,
-      Instrucciones,
-    }
-  }
-
-  const Default = function (Instrucciones) {
-    return {
-      Tipo: 'Default',
-      Instrucciones,
-    }
-  }
-
-  const While = function (Condicion, Instrucciones) {
-    return {
-      Tipo: 'While',
-      Condicion,
-      Instrucciones,
-    }
-  }
-
-  const For = function (Inicializacion, Condicion, Actualizacion, Instrucciones) {
-    return {
-      Tipo: 'For',
-      Inicializacion,
-      Condicion,
-      Actualizacion,
-      Instrucciones,
-    }
-  }
-
-  const Do_while = function (Condicion, Instrucciones) {
-    return {
-      Tipo: 'Do-while',
-      Condicion,
-      Instrucciones,
-    }
-  }
-
-  const Return = function (Expresion) {
-    return {
-      Tipo: 'Return',
-      Expresion,
-    }
-  }
-
-  const Break = function () {
-    return {
-      Tipo: 'Break',
-    }
-  }
-
-  const Continue = function () {
-    return {
-      Tipo: 'Continue',
-    }
   }
 %}
 
@@ -260,7 +26,7 @@
 [\040\t\r]+                                        {}
 \n                                                 {}
 '//'.*                                             {}
-[/][*][^*]*[*]+([^/][^*]*[*]+)*[/]                 {}
+'/*'([^*]|[\r\n]|('*'+([^*/]|[\r\n])))*'*'+'/'     {}
 
 '+'                                                return 'opar_suma';
 '-'                                                return 'opar_resta';
@@ -277,7 +43,7 @@
 '||'                                               return 'oplog_or';
 '&&'                                               return 'oplog_and';
 '!'                                                return 'oplog_not';
-'?'                                                return 'ternary';
+'?'                                                return 'ternario';
 '('                                                return 'parA';
 ')'                                                return 'parB';
 '['                                                return 'corA';
@@ -315,17 +81,18 @@
 'true'|'false'                                     return 'boolean';
 [0-9]+'.'[0-9]+                                    return 'double';
 [0-9]+                                             return 'int';
-\'[\x00-\x7F]\'                                    return 'char';
+\'[\x00-\x7F]\'                                    { yytext = yytext.substr(1, yyleng - 2); return 'char'; }
 \"((\\n)|(\\\\)|(\\\')|(\\t)|(\\\")|[^\n\"])*\"    { yytext = yytext.substr(1, yyleng - 2); return 'string'; }
-\'((\\n)|(\\\\)|(\\\')|(\\t)|(\\\")|[^\n\'])*\'    { yytext = yytext.substr(1, yyleng - 2); return 'string'; }
 [a-z][a-z0-9_]*                                    return 'id';
 
 <<EOF>>                                            return 'EOF';
-.                                                  { Error(yylloc.first_line, yylloc.first_column, 'Léxico', `No se reconoció '${yytext}'`); }
+.                                                  { Error(yylloc.first_line, yylloc.first_column, 'Léxico', `No se reconoció el lexema '${yytext}'`); }
 
-/lex //PRECEDENCIA
+/lex
 
 %left JError
+%right ternario
+
 %left 'oplog_or'
 %left 'oplog_and'
 %right 'oplog_not'
@@ -333,7 +100,14 @@
 %left 'opar_suma' 'opar_resta'
 %left 'opar_multiplicacion' 'opar_division' 'opar_modulo'
 %left 'opar_potencia'
-%right opar_negacion
+%right op_negacion
+
+%right op_casteo
+%nonassoc op_incremento op_decremento
+%left op_call
+%left op_vector op_list
+%nonassoc op_group
+
 
 %start INI
 
@@ -343,7 +117,7 @@ INI
         : INS EOF
                 { return { body: $1, errors: getErrores() } }
 	| error EOF
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 INS
@@ -404,56 +178,49 @@ BLOQUE
         | llaveA llaveB
                 { $$ = []; }
 	      | llaveA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 DECLARACION_FUNCION
         : TIPO id parA PARAMETROS parB BLOQUE
-                { $$ = Funcion($1, $2, $4, $6); }
+                { $$ = s.Funcion(this._$.first_line, this._$.first_column, $1, $2, $4, $6); }
         | TIPO id parA parB BLOQUE
-                { $$ = Funcion($1, $2, [], $5); }
+                { $$ = s.Funcion(this._$.first_line, this._$.first_column, $1, $2, [], $5); }
         | TIPO id parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 DECLARACION_METODO
         : r_void id parA PARAMETROS parB BLOQUE
-                { $$ = Metodo($2, $4, $6); }
+                { $$ = s.Metodo(this._$.first_line, this._$.first_column, $2, $4, $6); }
         | r_void id parA parB BLOQUE
-                { $$ = Metodo($2, [], $5); }
+                { $$ = s.Metodo(this._$.first_line, this._$.first_column, $2, [], $5); }
         | r_void id parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 PARAMETROS
         : PARAMETROS coma TIPO id
-                { $$ = $1; $$.push(Parametro($3, $4)); }
+                { $$ = $1; $$.push(s.Parametro(this._$.first_line, this._$.first_column, $3, $4)); }
         | TIPO id
-                { $$ = [Parametro($1, $2)]; }
+                { $$ = [s.Parametro(this._$.first_line, this._$.first_column, $1, $2)]; }
 ;
 
 EXEC
         : r_exec S_LLAMADA
-                { $$ = Exec($2); }
+                { $$ = s.Exec(this._$.first_line, this._$.first_column, $2); }
 ;
 
 DECLARACION_VARIABLE
         : TIPO id puntocoma
-                { $$ = Declaracion($1, $2, null); }
+                { $$ = s.Declaracion(this._$.first_line, this._$.first_column, $1, $2, null); }
         | TIPO id igual E puntocoma
-                { $$ = Declaracion($1, $2, $4); }
+                { $$ = s.Declaracion(this._$.first_line, this._$.first_column, $1, $2, $4); }
 ;
 
 ASIGNACION_VARIABLE
         : id igual E puntocoma
-                { $$ = Asignacion($1, $3); }
-        | id igual OPERACION_TERNARIA puntocoma
-                { $$ = Asignacion($1, $3); }
-;
-
-OPERACION_TERNARIA
-        : E ternary E dospuntos E
-                { $$ = Ternaria($1, $3, $5); }
+                { $$ = s.Asignacion(this._$.first_line, this._$.first_column, $1, $3); }
 ;
 
 TIPO
@@ -471,63 +238,65 @@ TIPO
 
 E
         : E opar_suma E
-                { $$ = Operacion('suma', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'suma', $1, $3); }
         | E opar_resta E
-                { $$ = Operacion('resta', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'resta', $1, $3); }
         | E opar_multiplicacion E
-                { $$ = Operacion('multiplicacion', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'multiplicacion', $1, $3); }
         | E opar_division E
-                { $$ = Operacion('division', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'division', $1, $3); }
         | E opar_potencia E
-                { $$ = Operacion('potencia', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'potencia', $1, $3); }
         | E opar_modulo E
-                { $$ = Operacion('modulo', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'modulo', $1, $3); }
         | E oprel_igualacion E
-                { $$ = Operacion('igualacion', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'igualacion', $1, $3); }
         | E oprel_diferenciacion E
-                { $$ = Operacion('diferenciacion', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'diferenciacion', $1, $3); }
         | E oprel_menor E
-                { $$ = Operacion('menor', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'menor', $1, $3); }
         | E oprel_menorigual E
-                { $$ = Operacion('menorigual', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'menorigual', $1, $3); }
         | E oprel_mayor E
-                { $$ = Operacion('mayor', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'mayor', $1, $3); }
         | E oprel_mayorigual E
-                { $$ = Operacion('mayorigual', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'mayorigual', $1, $3); }
         | E oplog_or E
-                { $$ = Operacion('or', $1, $3); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'or', $1, $3); }
         | E oplog_and E
-                { $$ = Operacion('and', $1, $3); }
-        | opar_resta E %prec opar_negacion
-                { $$ = Operacion('negacion', $2); }
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'and', $1, $3); }
+        | opar_resta E %prec op_negacion
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'negacion', $2); }
         | oplog_not E
-                { $$ = Operacion('not', $2); }
-        | parA E parB
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'not', $2); }
+        | E ternario E dospuntos E %prec op_condicional
+                { $$ = s.Ternaria(this._$.first_line, this._$.first_column, $1, $3, $5); }
+        | parA E parB %prec op_group
                 { $$ = $2; }
-        | LLAMADA
+        | LLAMADA %prec op_call
                 { $$ = $1; }
-        | ACCESO_VECTOR
+        | ACCESO_VECTOR  %prec op_vector
                 { $$ = $1; }
-        | ACCESO_LISTA
+        | ACCESO_LISTA %prec op_list
                 { $$ = $1; }
-        //| parA TIPO parB E
-        //        { $$ = Operacion('casteo', $4, $2); }
-        | E opar_suma opar_suma
-                { $$ = Operacion('incremento', $1); }
-        | E opar_resta opar_resta
-                { $$ = Operacion('decremento', $1); }
+        | parA TIPO parB E %prec op_casteo
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'casteo', s.Simbolo(this._$.first_line, this._$.first_column, $2, $2), $4); }
+        | E opar_suma opar_suma %prec op_incremento
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'incremento',$1); }
+        | E opar_resta opar_resta %prec op_decremento
+                { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'decremento', $1); }
         | id
-                { $$ = Simbolo('id', $1); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'id', $1); }
         | int
-                { $$ = Simbolo('int', parseInt($1)); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'int', parseInt($1)); }
         | double
-                { $$ = Simbolo('double', parseFloat($1)); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'double', parseFloat($1)); }
         | char
-                { $$ = Simbolo('char', $1); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'char', $1); }
         | string
-                { $$ = Simbolo('string', $1); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'string', $1); }
         | boolean
-                { $$ = Simbolo('boolean', $1 === 'true'); }
+                { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'boolean', $1.toLowerCase() === 'true'); }
 ;
 
 INCREMENTO_VARIABLE
@@ -542,12 +311,12 @@ DECREMENTO_VARIABLE
 
 INCREMENTO
         : id opar_suma opar_suma
-                { $$ = Incremento($1); }
+                { $$ = s.Incremento(this._$.first_line, this._$.first_column, $1); }
 ;
 
 DECREMENTO
         : id opar_resta opar_resta
-                { $$ = Decremento($1); }
+                { $$ = s.Decremento(this._$.first_line, this._$.first_column, $1); }
 ;
 
 VALORES
@@ -559,48 +328,50 @@ VALORES
 
 DECLARACION_VECTOR
         : TIPO corA corB id igual r_new TIPO corA E corB puntocoma
-                { $$ = Vector($1, $4, $7, $9, null); }
+                { $$ = s.Vector(this._$.first_line, this._$.first_column, $1, $4, $7, $9); }
         | TIPO corA corB id igual llaveA VALORES llaveB puntocoma
-                { $$ = Vector($1, $4, null, null, $7); }
+                { $$ = s.Vector(this._$.first_line, this._$.first_column, $1, $4, $1, null, $7); }
 ;
 
 ACCESO_VECTOR
         : id corA E corB
-                { $$ = Acceso_vector($1, $3); }
+                { $$ = s.Acceso_vector(this._$.first_line, this._$.first_column, $1, $3); }
 ;
 
 MODIFICACION_VECTOR
         : id corA E corB igual E puntocoma
-                { $$ = Modificacion_vector($1, $3, $6); }
+                { $$ = s.Modificacion_vector(this._$.first_line, this._$.first_column, $1, $3, $6); }
 ;
 
 DECLARACION_LISTA
-        : r_list menor TIPO mayor id igual r_new r_list menor TIPO mayor puntocoma
-                { $$ = Lista($3, $5, $10); }
+        : r_list oprel_menor TIPO oprel_mayor id igual r_new r_list oprel_menor TIPO oprel_mayor puntocoma
+                { $$ = s.Lista(this._$.first_line, this._$.first_column, $3, $5, $10); }
+        | r_list oprel_menor TIPO oprel_mayor id igual E puntocoma
+                { $$ = s.Lista(this._$.first_line, this._$.first_column, $3, $5, null, $7); }
 ;
 
 ADD_LISTA
         : id punto r_add parA E parB puntocoma
-                { $$ = Add_lista($1, $5); }
+                { $$ = s.Add_lista(this._$.first_line, this._$.first_column, $1, $5); }
 ;
 
 ACCESO_LISTA
         : id corA corA E corB corB
-                { $$ = Acceso_lista($1, $4); }
+                { $$ = s.Acceso_lista(this._$.first_line, this._$.first_column, $1, $4); }
 ;
 
 MODIFICACION_LISTA
         : id corA corA E corB corB igual E puntocoma
-                { $$ = Modificacion_lista($1, $4, $8); }
+                { $$ = s.Modificacion_lista(this._$.first_line, this._$.first_column, $1, $4, $8); }
 ;
 
 S_IF
         : r_if parA E parB BLOQUE
-                { $$ = If($3, $5, null); }
+                { $$ = s.If(this._$.first_line, this._$.first_column, $3, $5, null); }
         | r_if parA E parB BLOQUE S_ELSE
-                { $$ = If($3, $5, $6); }
-	| r_if parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { $$ = s.If(this._$.first_line, this._$.first_column, $3, $5, $6); }
+	| r_if parA error parB BLOQUE
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 
@@ -613,37 +384,37 @@ S_ELSE
 
 S_SWITCH
         : r_switch parA E parB llaveA CASES S_DEFAULT llaveB
-                { $$ = Switch($3, $6, $7); }
+                { $$ = s.Switch(this._$.first_line, this._$.first_column, $3, $6, $7); }
         | r_switch parA E parB llaveA CASES llaveB
-                { $$ = Switch($3, $6, null); }
+                { $$ = s.Switch(this._$.first_line, this._$.first_column, $3, $6, null); }
         | r_switch parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 CASES
         : CASES r_case E dospuntos INS
-                { $$ = $1; $$.push(Case($3, $5)); }
+                { $$ = $1; $$.push(s.Case(this._$.first_line, this._$.first_column, $3, $5)); }
         | r_case E dospuntos INS
-                { $$ = [Case($2, $4)]; }
+                { $$ = [s.Case(this._$.first_line, this._$.first_column, $2, $4)]; }
 ;
 
 S_DEFAULT
         : r_default dospuntos INS
-                { $$ = Default($3); }
+                { $$ = s.Default(this._$.first_line, this._$.first_column, $3); }
 ;
 
 S_WHILE
         : r_while parA E parB BLOQUE
-                { $$ = While($3, $5); }
+                { $$ = s.While(this._$.first_line, this._$.first_column, $3, $5); }
         | r_while parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 S_FOR
         : r_for parA INICIALIZACION puntocoma E puntocoma ACTUALIZACION parB BLOQUE
-                { $$ = For($3, $5, $7, $9); }
+                { $$ = s.For(this._$.first_line, this._$.first_column, $3, $5, $7, $9); }
         | r_for parA error llaveB
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 INICIALIZACION
@@ -664,19 +435,19 @@ ACTUALIZACION
 
 ASIGNACION
         : id igual E
-                { $$ = Asignacion($1, $3); }
+                { $$ = s.Asignacion(this._$.first_line, this._$.first_column, $1, $3); }
 ;
 
 DECLARACION
         : TIPO id igual E
-                { $$ = Declaracion($1, $2, $4); }
+                { $$ = s.Declaracion(this._$.first_line, this._$.first_column, $1, $2, $4); }
 ;
 
 S_DO
         : r_do BLOQUE r_while parA E parB puntocoma
-                { $$ = Do_while($5, $2); }
+                { $$ = s.Do_while(this._$.first_line, this._$.first_column, $5, $2); }
         | r_do error puntocoma
-                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `No se esperaba '${yytext}'`); }
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 S_LLAMADA
@@ -686,22 +457,24 @@ S_LLAMADA
 
 LLAMADA
         : id parA parB
-                { $$ = Llamada($1, []); }
+                { $$ = s.Llamada(this._$.first_line, this._$.first_column, $1, []); }
         | id parA VALORES parB
-                { $$ = Llamada($1, $3); }
+                { $$ = s.Llamada(this._$.first_line, this._$.first_column, $1, $3); }
 ;
 
 S_RETURN
         : r_return E puntocoma
-                { $$ = Return($2); }
+                { $$ = s.Return(this._$.first_line, this._$.first_column, $2); }
+        | r_return puntocoma
+                { $$ = s.Return(this._$.first_line, this._$.first_column); }
 ;
 
 S_BREAK
         : r_break puntocoma
-                { $$ = Break(); }
+                { $$ = s.Break(this._$.first_line, this._$.first_column); }
 ;
 
 S_CONTINUE
         : r_continue puntocoma
-                { $$ = Continue(); }
+                { $$ = s.Continue(this._$.first_line, this._$.first_column); }
 ;

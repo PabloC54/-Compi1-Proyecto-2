@@ -99,7 +99,6 @@ button:active {
   height: 251px;
   padding: 12px 8px;
   scrollbar-width: 0;
-  overflow: hidden;
   border-radius: 10px;
   background-color: rgb(22, 12, 22);
   color: cornflowerblue;

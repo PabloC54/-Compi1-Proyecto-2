@@ -1,16 +1,7 @@
 %{
     var pilaCiclosSw = [];
     var pilaFunciones = [];
-  	// entorno
-  	const Entorno = function(anterior)
-    {
-    	return {
-        	tablaSimbolos:new Map(),
-          	anterior:anterior
-        }
-    }
-  	var EntornoGlobal = Entorno(null)
-  	//Ejecuciones
+
     function EjecutarBloque(LINS, ent)
 	{
         var retorno=null;
@@ -78,30 +69,7 @@
         }
         return null;
     }
-    //Expresion
-    const nuevoSimbolo = function(Valor,Tipo)
-    {
-        return {
-            Valor:Valor,
-            Tipo:Tipo
-        }
-    }
-    const NuevaOperacion= function(OperandoIzq,OperandoDer,Tipo)
-    {
-        return {
-            OperandoIzq:OperandoIzq,
-            OperandoDer:OperandoDer,
-            Tipo:Tipo
-        }
-    }
-    function NuevaOperacionUnario(Operando,Tipo)
-	{
-        return {
-            OperandoIzq:Operando,
-            OperandoDer:null,
-            Tipo:Tipo
-        }
-    }
+
     function Evaluar(Operacion,ent)
     {
         var Valorizq=null;
@@ -302,26 +270,7 @@
           " y " + ( Valorder ? Valorder.Tipo : "" )); 
       	return nuevoSimbolo("@error@", "error");
     }
-	/*-----------------------------------------------------------------------------------------------*/
-    //Imprimir
-    const Imprimir=function(TipoInstruccion,Operacion)
-    {
-        return {
-            TipoInstruccion:TipoInstruccion,
-            Operacion:Operacion
-        }
-    }
-  	//Crear
-  	const Crear = function(id, tipo, expresion)
-    {
-    	return {
-      		Id:id,
-        	Tipo: tipo,
-        	Expresion: expresion,
-        	TipoInstruccion:"crear"
-      }
-    }
-    
+
     function EjecutarCrear (crear,ent) 
 	{
       	// validar si existe la variable
@@ -358,16 +307,7 @@
       	// crear objeto a insertar
       	ent.tablaSimbolos.set(crear.Id, valor);
     }
-		// asignar
-  	const Asignar = function(id, expresion)
-    {
-    	return {
-      		Id:id,
-        	Expresion: expresion,
-        	TipoInstruccion: "asignar"
-      	}
-    }
-    
+
     function EjecutarAsignar (asignar,ent) 
 	{
       	//Evaluar la expresion
@@ -398,31 +338,7 @@
         }
         console.log("No se encontro la variable ",asignar.Id);
     }
-	//Romper
-  	const Romper = function()
-    {
-      	return {
-          TipoInstruccion:"romper"
-        }
-    }
-	
-    const Retorno = function(Expresion)
-    {
-        return {
-            Expresion:Expresion,
-        	TipoInstruccion: "retorno"
-        }
-    }
-    //Si	 
-	const Si=function(Condicion,BloqueSi,BloqueElse)
-    {
-          return {
-            Condicion:Condicion,
-            BloqueSi:BloqueSi,
-            BloqueElse:BloqueElse,
-            TipoInstruccion:"si"
-          }
-    }
+
     function EjecutarSi (si,ent)
     {
     	var res = Evaluar(si.Condicion, ent);
@@ -444,25 +360,7 @@
             console.log("Se esperaba una condicion dentro del Si");
         }
     }
-    //Casos
-    const Caso = function(Expresion,Bloque)
-    {
-        return {
-            Expresion:Expresion,
-            Bloque:Bloque
-        }
-    }
-    
-    const Seleccionar = function(Expresion, LCasos, NingunoBloque)
-    {
-        return  {
-            Expresion: Expresion,
-            LCasos: LCasos,
-            NingunoBloque: NingunoBloque,
-            TipoInstruccion: "seleccionar"
-        }
-    }
-	
+
   	function EjecutarSeleccionar(seleccionar, ent)
 	{  
         pilaCiclosSw.push("seleccionar");
@@ -502,16 +400,7 @@
         pilaCiclosSw.pop();
         return
     }
-	//Mientras
-	const Mientras = function(Condicion, Bloque)
-    {
-        return {
-            Condicion: Condicion,
-            Bloque: Bloque,
-            TipoInstruccion:"mientras"
-        }
-    }
-  
+
   	function EjecutarMientras(mientras,ent)
 	{
         pilaCiclosSw.push("ciclo");        
@@ -549,17 +438,7 @@
         pilaCiclosSw.pop();
         return
 	}
-	const Desde = function(ExpDesde, ExpHasta, ExpPaso, Bloque, ent)
-    {
-        return {
-            ExpDesde: ExpDesde,
-            ExpHasta: ExpHasta,
-            ExpPaso: ExpPaso,
-            Bloque: Bloque,
-            TipoInstruccion:"desde"
-        }
-    }
-  
+
 	function EjecutarDesde(Desde, ent)
 	{
         pilaCiclosSw.push("ciclo"); 
@@ -632,17 +511,7 @@
         pilaCiclosSw.pop();
         return;
 	}
-    //Funcion
-    const Funcion=function(Id, Parametros, Tipo, Bloque)
-    {
-        return{
-            Id: Id,
-            Parametros: Parametros,
-            Bloque: Bloque,
-            Tipo: Tipo,
-            TipoInstruccion: "funcion"
-        }
-    }
+
     function EjecutarFuncion(elemento,ent)
     {
         var nombrefuncion = elemento.Id + "$";
@@ -657,15 +526,7 @@
       	}
         ent.tablaSimbolos.set(nombrefuncion, elemento);
     }
-    //Llamada
-    const Llamada=function(Id,Params)
-    {
-        return {
-            Id: Id,
-            Params: Params,
-            TipoInstruccion: "llamada"
-        }
-    }
+
     function EjecutarLlamada(Llamada,ent)
     {
         var nombrefuncion = Llamada.Id+"$";

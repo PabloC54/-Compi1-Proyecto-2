@@ -261,7 +261,7 @@ const Do_while = function (Linea, Columna, Condicion, Instrucciones) {
   return {
     Linea,
     Columna,
-    Tipo: 'Do-while',
+    Tipo: 'Do_while',
     Condicion,
     Instrucciones
   }

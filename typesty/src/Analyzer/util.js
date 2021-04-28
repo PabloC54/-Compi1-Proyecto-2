@@ -184,4 +184,6 @@ const printNodes = (nodes, index) => {
   return temp_str + printNodes(nodes.left, index + 1) + printNodes(nodes.right, index + 1)
 }
 
-export { report, graphAST }
+const copyArray = (INS) => JSON.parse(JSON.stringify(INS))
+
+export { report, graphAST, copyArray }

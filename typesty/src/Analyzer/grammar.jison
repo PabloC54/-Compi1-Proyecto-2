@@ -115,7 +115,7 @@
 
 INI
         : INS EOF
-                { return { body: $1, errors: getErrores() } }
+                { return { parsed_body: $1, parsed_errors: getErrores() } }
 	| error EOF
                 { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
@@ -170,6 +170,8 @@ S
                 { $$ = $1; }
         | S_CONTINUE
                 { $$ = $1; }
+        | error puntocoma
+                { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;
 
 BLOQUE
@@ -225,15 +227,15 @@ ASIGNACION_VARIABLE
 
 TIPO
         : r_int
-                { $$ = $1; }
+                { $$ = $1.toLowerCase(); }
         | r_double
-                { $$ = $1; }
+                { $$ = $1.toLowerCase(); }
         | r_boolean
-                { $$ = $1; }
+                { $$ = $1.toLowerCase(); }
         | r_char
-                { $$ = $1; }
+                { $$ = $1.toLowerCase(); }
         | r_string
-                { $$ = $1; }
+                { $$ = $1.toLowerCase(); }
 ;
 
 E
@@ -330,7 +332,7 @@ DECLARACION_VECTOR
         : TIPO corA corB id igual r_new TIPO corA E corB puntocoma
                 { $$ = s.Vector(this._$.first_line, this._$.first_column, $1, $4, $7, $9); }
         | TIPO corA corB id igual llaveA VALORES llaveB puntocoma
-                { $$ = s.Vector(this._$.first_line, this._$.first_column, $1, $4, $1, null, $7); }
+                { $$ = s.Vector(this._$.first_line, this._$.first_column, $1, $4, null, null, $7); }
 ;
 
 ACCESO_VECTOR
@@ -379,7 +381,7 @@ S_ELSE
         : r_else BLOQUE
                 { $$ = $2; }
         | r_else S_IF
-                { $$ = $2; }
+                { $$ = [$2]; }
 ;
 
 S_SWITCH
@@ -387,6 +389,8 @@ S_SWITCH
                 { $$ = s.Switch(this._$.first_line, this._$.first_column, $3, $6, $7); }
         | r_switch parA E parB llaveA CASES llaveB
                 { $$ = s.Switch(this._$.first_line, this._$.first_column, $3, $6, null); }
+        | r_switch parA E parB llaveA S_DEFAULT llaveB
+                { $$ = s.Switch(this._$.first_line, this._$.first_column, $3, [], $6); }
         | r_switch parA error llaveB
                 { Error(this._$.last_line, this._$.last_column, 'Sintáctico', `Se recuperó en '${yytext}'`); }
 ;

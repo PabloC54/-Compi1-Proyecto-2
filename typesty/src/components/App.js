@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 
 import { UnControlled as CodeMirror } from 'react-codemirror2'
 import 'codemirror/lib/codemirror.css'
@@ -29,7 +29,7 @@ const App = () => {
   //> New File
   const handleNewFile = () => {
     setContent({ ...content, text: '{}' })
-    handleLog('Nuevo archivo .ty')
+    Log('Nuevo archivo .ty')
   }
 
   const handleFileOpen = () => {
@@ -44,7 +44,7 @@ const App = () => {
     fileReader = new FileReader()
     fileReader.onloadend = handleFileRead
     fileReader.readAsText(file)
-    handleLog("Se abrió '" + file.name + "'")
+    Log("Se abrió '" + file.name + "'")
   }
 
   const handleFileRead = () => {
@@ -65,79 +65,102 @@ const App = () => {
   //> Save File
   const handleFileSave = () => {
     handleSave(content.text, 'code.ty')
-    handleLog('Se guardó el archivo .ty')
+    Log('Se guardó el archivo .ty')
   }
 
   //> Compilar
 
   const handleCompile = () => {
+    const { parsed_body, parsed_errors } = parse(content.text)
+    if (!parsed_body || !parsed_body.length) return
+
     setErrors([])
     setSymbols([])
+    setParsed(parsed_body)
 
-    const parsed = parse(content.text)
-    setParsed(parsed.body)
-    if (!parsed.body) return
+    console.log(parsed_body)
 
-    console.log(parsed)
-
-    if (parsed.errors.length) {
-      setErrors(parsed.errors)
-      return handleLog('Se encontraron errores léxicos o sintácticos\nConsulte el reporte de errores')
+    if (parsed_errors.length) {
+      setErrors(parsed_errors)
+      console.log('parsed errors', ...parsed_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`))
+      return Log(
+        [
+          `Compilando...`,
+          ...toTitle('Errores encontrados'),
+          ...parsed_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`),
+          `Puede consultar los errores en 'Reportar errores'`
+        ],
+        true
+      )
     }
 
-    interpret(parsed)
+    let start = performance.now()
+    interpret([...parsed_body])
+    let end = performance.now()
+
     setSymbols(getSymbols())
 
     let semantic_errors = getErrors()
     if (semantic_errors.length) {
-      setErrors(errors.concat(semantic_errors))
-      return handleLog('Se encontraron errores semánticos\nConsulte el reporte de errores')
+      let compiler_errors = [...parsed_errors, ...semantic_errors]
+      setErrors(compiler_errors)
+      return Log(
+        [
+          `Compilando...`,
+          ...toTitle('Errores encontrados'),
+          ...compiler_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`),
+          `Puede consultar los errores en 'Reportar errores'`
+        ],
+        true
+      )
     }
-    let printed = getPrinted()
-    handleLog(printed)
+
+    Log([`Compilando...`, ...toTitle(`Output (${(end - start).toFixed(6)} milisegundos)`), ...getPrinted()], true)
   }
 
   //> Reporte AST
 
   const handleASTReport = () => {
-    if (!Object.keys(parsed).length) return handleLog('No hay código compilado para generar el AST')
+    if (!Object.keys(parsed).length) return Log('No hay código compilado para generar el AST')
 
     let dot_content = graphAST(parsed)
     let file_content = dot_content
 
     // generar png del dot
     handleSave(file_content, 'AST.png')
-    handleLog('Se descargargó el AST')
+    Log('Se descargargó el AST')
   }
 
   //> Reporte de errores
 
   const handleErrorsReport = () => {
-    if (!errors.length) return handleLog('No hay errores para reportar')
+    if (!errors.length) return Log('No hay errores para reportar')
 
     let file_content = report('Errores', errors)
 
     handleSave(file_content, 'errors.html')
-    handleLog('Se descargaron los errores encontrados')
+    Log('Se descargaron los errores encontrados')
   }
 
   //> Tabla de símbolos
 
   const handleSymbolsReport = () => {
-    if (!symbols.length) return handleLog('No hay tabla de símbolos para reportar')
+    if (!symbols.length) return Log('No hay tabla de símbolos para reportar')
 
     let file_content = report('Símbolos', symbols)
 
     handleSave(file_content, 'symbols.html')
-    handleLog('Se descargó la tabla de símbolos')
+    Log('Se descargó la tabla de símbolos')
   }
 
   //> Consola
 
-  const handleLog = (msg) => {
-    setLogs(logs.concat(msg))
-    document.getElementById('logger').scrollTop = document.getElementById('logger').scrollHeight
+  const Log = (msg, clear = false) => {
+    clear ? setLogs(typeof msg === 'string' ? [msg] : msg) : setLogs(logs.concat(msg))
+    if (!clear) document.getElementById('logger').scrollTop = document.getElementById('logger').scrollHeight
   }
+
+  const toTitle = (msg) => ['='.repeat(msg.length + 4), `| ${msg} |`, '='.repeat(msg.length + 4)]
 
   //> Pestañas
 
@@ -158,7 +181,7 @@ const App = () => {
   }
 
   const handleCloseTab = () => {
-    if (Object.keys(tabs).length === 1) return handleLog('Únicamente hay una pestaña')
+    if (Object.keys(tabs).length === 1) return Log('Únicamente hay una pestaña')
 
     const temp = Object.keys(tabs).reduce((object, key) => {
       if (parseInt(key) !== content.number) {
@@ -173,10 +196,7 @@ const App = () => {
 
   const getNumber = () => {
     let i = 1
-
-    while (Object.keys(tabs).includes(String(i))) {
-      i++
-    }
+    while (Object.keys(tabs).includes(String(i))) i++
     return i
   }
 
@@ -213,13 +233,13 @@ const App = () => {
               <button onClick={handleCompile}>Compilar</button>
             </div>
             <div className='col-lg-3'>
-              <button onClick={handleErrorsReport}>Errores</button>
+              <button onClick={handleErrorsReport}>Reportar errores</button>
             </div>
             <div className='col-lg-3'>
-              <button onClick={handleASTReport}>AST</button>
+              <button onClick={handleASTReport}>Reportar AST</button>
             </div>
             <div className='col-lg-3'>
-              <button onClick={handleSymbolsReport}>Símbolos</button>
+              <button onClick={handleSymbolsReport}>Reportar símbolos</button>
             </div>
           </div>
         </div>
@@ -259,7 +279,7 @@ const App = () => {
             </div>
             <div className='row'>
               <div id='console' className='col-lg-12'>
-                <textarea id='logger' readOnly defaultValue={logs.map((log) => '> ' + log + '\n').join('')} />
+                <textarea id='logger' readOnly defaultValue={logs.map((log) => log + '\n').join('')} />
               </div>
             </div>
           </div>

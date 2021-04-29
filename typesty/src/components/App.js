@@ -1,16 +1,19 @@
 import { useState, useRef } from 'react'
 
-import { UnControlled as CodeMirror } from 'react-codemirror2'
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/dracula.css'
-import 'codemirror/mode/javascript/javascript'
-
-import { interpret, getPrinted, getErrors, getSymbols } from '../Analyzer/interpreter'
-import { report, graphAST } from '../Analyzer/util'
+import { reportTable, graphAST } from '../services/reporter'
+import { toTitle, saveFile } from '../services/util'
+import { interpret } from '../Analyzer/interpreter'
+import { Logo } from './Logo'
+import { Button } from './Button'
+import { Code } from './Code'
+import { Console } from './Console'
+import { Dropdown } from './Dropdown'
 const { parse } = require('../Analyzer/analyzer.js')
 
 const App = () => {
-  const [content, setContent] = useState({ number: 1, text: '{}' })
+  const INITIAL_FILE = 'void main(){\n\t\n}\n\nexec main();'
+
+  const [content, setContent] = useState({ number: 1, text: INITIAL_FILE })
   const [tabs, setTabs] = useState({ 1: content.text })
   const [expanded, setExpanded] = useState(false)
   const [logs, setLogs] = useState([])
@@ -26,9 +29,10 @@ const App = () => {
     editor.setCursor(c)
   }
 
-  //> New File
+  //> File handling
+
   const handleNewFile = () => {
-    setContent({ ...content, text: '{}' })
+    setContent({ ...content, text: INITIAL_FILE })
     Log('Nuevo archivo .ty')
   }
 
@@ -36,9 +40,7 @@ const App = () => {
     inputFile.current.click()
   }
 
-  //> Open File
   let fileReader
-
   const handleFileUpload = (file) => {
     if (file === undefined) return
     fileReader = new FileReader()
@@ -52,23 +54,12 @@ const App = () => {
     setContent({ ...content, text: text })
   }
 
-  const handleSave = (text, name) => {
-    const element = document.createElement('a')
-    const file = new Blob([text], {
-      type: 'text/plain'
-    })
-    element.href = URL.createObjectURL(file)
-    element.download = name
-    element.click()
-  }
-
-  //> Save File
   const handleFileSave = () => {
-    handleSave(content.text, 'code.ty')
+    saveFile(content.text, 'code.ty')
     Log('Se guardó el archivo .ty')
   }
 
-  //> Compilar
+  //> Compile
 
   const handleCompile = () => {
     const { parsed_body, parsed_errors } = parse(content.text)
@@ -82,7 +73,6 @@ const App = () => {
 
     if (parsed_errors.length) {
       setErrors(parsed_errors)
-      console.log('parsed errors', ...parsed_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`))
       return Log(
         [
           `Compilando...`,
@@ -95,14 +85,13 @@ const App = () => {
     }
 
     let start = performance.now()
-    interpret([...parsed_body])
+    let { printed, interpreted_errors, symbols } = interpret([...parsed_body])
     let end = performance.now()
 
-    setSymbols(getSymbols())
+    setSymbols(symbols)
 
-    let semantic_errors = getErrors()
-    if (semantic_errors.length) {
-      let compiler_errors = [...parsed_errors, ...semantic_errors]
+    if (interpreted_errors.length) {
+      let compiler_errors = [...parsed_errors, ...interpreted_errors]
       setErrors(compiler_errors)
       return Log(
         [
@@ -115,10 +104,10 @@ const App = () => {
       )
     }
 
-    Log([`Compilando...`, ...toTitle(`Output (${(end - start).toFixed(6)} milisegundos)`), ...getPrinted()], true)
+    Log([`Compilando...`, ...toTitle(`Output (${(end - start).toFixed(6)} milisegundos)`), ...printed], true)
   }
 
-  //> Reporte AST
+  //> Reports
 
   const handleASTReport = () => {
     if (!Object.keys(parsed).length) return Log('No hay código compilado para generar el AST')
@@ -127,50 +116,38 @@ const App = () => {
     let file_content = dot_content
 
     // generar png del dot
-    handleSave(file_content, 'AST.png')
+    saveFile(file_content, 'AST.png')
     Log('Se descargargó el AST')
   }
-
-  //> Reporte de errores
 
   const handleErrorsReport = () => {
     if (!errors.length) return Log('No hay errores para reportar')
 
-    let file_content = report('Errores', errors)
+    let file_content = reportTable('Errores', errors)
 
-    handleSave(file_content, 'errors.html')
+    saveFile(file_content, 'errors.html')
     Log('Se descargaron los errores encontrados')
   }
-
-  //> Tabla de símbolos
 
   const handleSymbolsReport = () => {
     if (!symbols.length) return Log('No hay tabla de símbolos para reportar')
 
-    let file_content = report('Símbolos', symbols)
+    let file_content = reportTable('Símbolos', symbols)
 
-    handleSave(file_content, 'symbols.html')
+    saveFile(file_content, 'symbols.html')
     Log('Se descargó la tabla de símbolos')
   }
-
-  //> Consola
-
-  const Log = (msg, clear = false) => {
-    clear ? setLogs(typeof msg === 'string' ? [msg] : msg) : setLogs(logs.concat(msg))
-    if (!clear) document.getElementById('logger').scrollTop = document.getElementById('logger').scrollHeight
-  }
-
-  const toTitle = (msg) => ['='.repeat(msg.length + 4), `| ${msg} |`, '='.repeat(msg.length + 4)]
 
   //> Pestañas
 
   const handleDropDown = () => (expanded ? setExpanded(false) : setExpanded(true))
 
   const handleNewTab = () => {
-    let i = getNumber()
+    let i = 1
+    while (Object.keys(tabs).includes(String(i))) i++
 
-    setTabs({ ...tabs, [content.number]: content.text, [i]: '{}' })
-    setContent({ number: parseInt(i), text: '{}' })
+    setTabs({ ...tabs, [content.number]: content.text, [i]: INITIAL_FILE })
+    setContent({ number: parseInt(i), text: INITIAL_FILE })
   }
 
   const handleChangeTab = (i) => {
@@ -183,105 +160,59 @@ const App = () => {
   const handleCloseTab = () => {
     if (Object.keys(tabs).length === 1) return Log('Únicamente hay una pestaña')
 
-    const temp = Object.keys(tabs).reduce((object, key) => {
+    const new_tabs = Object.keys(tabs).reduce((object, key) => {
       if (parseInt(key) !== content.number) {
         object[parseInt(key)] = tabs[key]
       }
       return object
     }, {})
 
-    setTabs(temp)
+    setTabs(new_tabs)
     setContent({ number: 1, text: tabs[1] })
   }
 
-  const getNumber = () => {
-    let i = 1
-    while (Object.keys(tabs).includes(String(i))) i++
-    return i
+  //> Console
+
+  const Log = (msg, clear = false) => {
+    clear ? setLogs(typeof msg === 'string' ? [msg] : msg) : setLogs(logs.concat(msg))
+    if (!clear) document.getElementById('logger').scrollTop = document.getElementById('logger').scrollHeight
   }
 
   return (
-    <div className='row'>
+    <div className='container'>
       <div id='wrap' className='col-lg-12'>
-        <div id='buttons'>
-          <div className='row'>
-            <div className='col-lg-3'>
-              <button onClick={handleNewFile}>Nuevo archivo</button>
-              <input
-                style={{ display: 'none' }}
-                type='file'
-                accept='.ty'
-                ref={inputFile}
-                onChange={(e) => handleFileUpload(e.target.files[0])}
-                onClick={(e) => {
-                  e.target.value = null
-                }}
-              />
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleNewTab}>Nueva pestaña</button>
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleFileOpen}>Abrir archivo</button>
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleFileSave}>Guardar archivo</button>
-            </div>
-          </div>
-          <div className='row'>
-            <div className='col-lg-3'>
-              <button onClick={handleCompile}>Compilar</button>
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleErrorsReport}>Reportar errores</button>
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleASTReport}>Reportar AST</button>
-            </div>
-            <div className='col-lg-3'>
-              <button onClick={handleSymbolsReport}>Reportar símbolos</button>
-            </div>
-          </div>
+        <div id='buttons' className='row'>
+          <input
+            style={{ display: 'none' }}
+            type='file'
+            accept='.ty'
+            ref={inputFile}
+            onChange={(e) => handleFileUpload(e.target.files[0])}
+            onClick={(e) => {
+              e.target.value = null
+            }}
+          />
+          <Logo />
+          <Button onClick={handleNewFile} text={'Nuevo archivo'} />
+          <Button onClick={handleFileOpen} text={'Abrir archivo'} />
+          <Button onClick={handleFileSave} text={'Guardar archivo'} />
+          <Button onClick={handleErrorsReport} text={'Reportar errores'} />
+          <Button onClick={handleASTReport} text={'Reportar AST'} />
+          <Button onClick={handleSymbolsReport} text={'Reportar símbolos'} />
         </div>
         <div className='row'>
-          <div id='code' className='col-lg-7'>
-            <CodeMirror
-              value={content.text}
-              options={{
-                mode: 'javascript',
-                theme: 'dracula',
-                lineNumbers: true,
-                tabindex: 2
-              }}
-              onChange={handleContentChange}
-            />
-          </div>
+          <Code onChange={handleContentChange} text={content.text}>
+            <Button onClick={handleCompile} text={'Compilar código'} width={5} id={'centered-col'} />
+          </Code>
           <div id='consolearea' className='col-lg-5'>
             <div className='row'>
-              <div className='col-lg-6'>
-                <button onClick={handleDropDown} className='dropbtn'>
-                  Pestañas
-                </button>
-                <div className={`dropdown-content ${expanded ? 'show' : ''}`}>
-                  {Object.keys(tabs).map((index) => (
-                    <span
-                      key={index}
-                      className={parseInt(index) === content.number ? 'selected-tab' : ''}
-                      onClick={() => handleChangeTab(index)}>
-                      Pestaña {index}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className='col-lg-6'>
-                <button onClick={handleCloseTab}>Cerrar pestaña</button>
-              </div>
+              <Button onClick={handleDropDown} text={'Pestañas'} className={'dropbtn'} width={6}>
+                <Dropdown tabs={tabs} expanded={expanded} onChange={handleChangeTab} number={content.number} />
+              </Button>
+              <Button onClick={handleNewTab} text={'➕'} width={3} />
+              <Button onClick={handleCloseTab} text={'✖️'} width={3} />
             </div>
-            <div className='row'>
-              <div id='console' className='col-lg-12'>
-                <textarea id='logger' readOnly defaultValue={logs.map((log) => log + '\n').join('')} />
-              </div>
-            </div>
+            <Console logs={logs} />
           </div>
         </div>
       </div>

@@ -16,11 +16,16 @@
     errors.length = 0;
     return temp;
   }
+
+  const unscape = function(s) {
+    return s.substr(1, s.length - 2).replaceAll('\\\'', '\'').replaceAll('\\"', '"').replaceAll('\\\\', '\\')
+  }
 %}
 
 %lex
-
 %options case-insensitive
+
+escape                                             ("\n")|("\r")|("\t")|(\\\")|(\\\')|(\\\\)
 
 %%
 [\040\t\r]+                                        {}
@@ -28,6 +33,8 @@
 '//'.*                                             {}
 '/*'([^*]|[\r\n]|('*'+([^*/]|[\r\n])))*'*'+'/'     {}
 
+'++'                                               return 'op_incremento';
+'--'                                               return 'op_decremento';
 '+'                                                return 'opar_suma';
 '-'                                                return 'opar_resta';
 '*'                                                return 'opar_multiplicacion';
@@ -43,7 +50,7 @@
 '||'                                               return 'oplog_or';
 '&&'                                               return 'oplog_and';
 '!'                                                return 'oplog_not';
-'?'                                                return 'ternario';
+'?'                                                return 'op_ternario';
 '('                                                return 'parA';
 ')'                                                return 'parB';
 '['                                                return 'corA';
@@ -81,17 +88,17 @@
 'true'|'false'                                     return 'boolean';
 [0-9]+'.'[0-9]+                                    return 'double';
 [0-9]+                                             return 'int';
-\'[\x00-\x7F]\'                                    { yytext = yytext.substr(1, yyleng - 2); return 'char'; }
-\"((\\n)|(\\\\)|(\\\')|(\\t)|(\\\")|[^\n\"])*\"    { yytext = yytext.substr(1, yyleng - 2); return 'string'; }
-[a-z][a-z0-9_]*                                    return 'id';
+\'({escape}|[\x00-\x26\x28-\x5B\x5D-\x7F])\'       { yytext = unscape(yytext); return 'char'; }
+\"({escape}|[^\n\"\\])*\"                          { yytext = unscape(yytext); return 'string'; }
+[a-z_$][a-z0-9_$]*                                  return 'id';
 
 <<EOF>>                                            return 'EOF';
-.                                                  { Error(yylloc.first_line, yylloc.first_column, 'Léxico', `No se reconoció el lexema '${yytext}'`); }
+.                                                  { Error(yylloc.first_line, yylloc.first_column, 'Léxico', `No se reconoció el lexema: ${yytext}`); }
 
 /lex
 
 %left JError
-%right ternario
+%right op_ternario
 
 %left 'oplog_or'
 %left 'oplog_and'
@@ -99,11 +106,11 @@
 %left 'oprel_igualacion' 'oprel_diferenciacion' 'oprel_menor' 'oprel_menorigual' 'oprel_mayor' 'oprel_mayorigual'
 %left 'opar_suma' 'opar_resta'
 %left 'opar_multiplicacion' 'opar_division' 'opar_modulo'
-%left 'opar_potencia'
+%nonassoc 'opar_potencia'
 %right op_negacion
 
 %right op_casteo
-%nonassoc op_incremento op_decremento
+%left 'op_incremento' 'op_decremento'
 %left op_call
 %left op_vector op_list
 %nonassoc op_group
@@ -271,7 +278,7 @@ E
                 { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'negacion', $2); }
         | oplog_not E
                 { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'not', $2); }
-        | E ternario E dospuntos E %prec op_condicional
+        | E op_ternario E dospuntos E %prec op_condicional
                 { $$ = s.Ternaria(this._$.first_line, this._$.first_column, $1, $3, $5); }
         | parA E parB %prec op_group
                 { $$ = $2; }
@@ -283,9 +290,9 @@ E
                 { $$ = $1; }
         | parA TIPO parB E %prec op_casteo
                 { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'casteo', s.Simbolo(this._$.first_line, this._$.first_column, $2, $2), $4); }
-        | E opar_suma opar_suma %prec op_incremento
+        | E op_incremento
                 { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'incremento',$1); }
-        | E opar_resta opar_resta %prec op_decremento
+        | E op_decremento
                 { $$ = s.Operacion(this._$.first_line, this._$.first_column, 'decremento', $1); }
         | id
                 { $$ = s.Simbolo(this._$.first_line, this._$.first_column, 'id', $1); }
@@ -312,12 +319,12 @@ DECREMENTO_VARIABLE
 ;
 
 INCREMENTO
-        : id opar_suma opar_suma
+        : id op_incremento
                 { $$ = s.Incremento(this._$.first_line, this._$.first_column, $1); }
 ;
 
 DECREMENTO
-        : id opar_resta opar_resta
+        : id op_decremento
                 { $$ = s.Decremento(this._$.first_line, this._$.first_column, $1); }
 ;
 

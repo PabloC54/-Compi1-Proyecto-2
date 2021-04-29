@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 .CodeMirror {
   font-family: 'Fira Code', monospace;
@@ -14,6 +15,27 @@ body {
   padding: 5% 0;
 }
 
+/* width */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #9b9b9b28;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(189, 190, 114);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(156, 155, 77);
+}
+
 #wrap {
   width: 95%;
   background-color: rgba(27, 25, 37, 0.8);
@@ -23,6 +45,19 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px 15px;
+  box-shadow: 5px 5px black;
+}
+
+.app-logo {
+  text-align: center;
+}
+
+.app-logo span {
+  font-family: 'Pacifico', cursive;
+  font-size: 50px;
+  color: khaki;
+  text-decoration: underline;
+  text-shadow: 4px 2px black;
 }
 
 div button {
@@ -46,6 +81,11 @@ button:active {
   size: 12px;
 }
 
+#centered-col {
+  float: none;
+  margin: 0 auto;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
@@ -56,7 +96,7 @@ button:active {
 }
 
 .dropdown-content span {
-  background-color: rgb(20, 20, 40);
+  background-color: rgb(42, 38, 59);
   color: lightgray;
   padding: 12px 16px;
   text-decoration: none;
@@ -64,7 +104,7 @@ button:active {
 }
 
 .dropdown-content span:hover {
-  background-color: rgb(25, 25, 60);
+  background-color: rgba(30, 26, 46, 1);
 }
 
 .show {
@@ -72,7 +112,8 @@ button:active {
 }
 
 .dropdown-content span.selected-tab {
-  background-color: rgb(30, 30, 70);
+  background-color: rgb(231, 224, 161);
+  color: black;
 }
 
 #buttons {
@@ -83,12 +124,16 @@ button:active {
   padding: 10px 30px;
 }
 
+.codemirror {
+  padding-top: 15px;
+}
+
 #consolearea {
   padding: 10px 30px;
 }
 
 #console {
-  padding-top: 15px;
+  padding: 15px 15px 0;
 }
 
 #console textarea {
@@ -96,10 +141,10 @@ button:active {
   font-size: 13px;
   margin: auto;
   width: 100%;
-  height: 251px;
+  height: 300px;
   padding: 12px 8px;
   scrollbar-width: 0;
   border-radius: 10px;
   background-color: rgb(22, 12, 22);
-  color: cornflowerblue;
+  color: khaki;
 }

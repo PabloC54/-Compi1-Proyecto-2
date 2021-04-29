@@ -1,50 +1,63 @@
 # Gramática de Regexive
 
+## Contenidos
+- [Gramática de Regexive](#gramática-de-regexive)
+  - [Contenidos](#contenidos)
+  - [Alfabeto](#alfabeto)
+    - [Símbolos terminales](#símbolos-terminales)
+      - [Expresiones regulares](#expresiones-regulares)
+      - [Palabras reservadas](#palabras-reservadas)
+    - [Símbolos no terminales](#símbolos-no-terminales)
+  - [Sintáxis](#sintáxis)
+
 ## Alfabeto
 
 ### Símbolos terminales
 
 #### Expresiones regulares
 
-| Token                 |             Lexema             |            Patrón            |
-| --------------------- | :----------------------------: | :--------------------------: |
-| comentario            |   \<comentario de una linea>   |             //.*             |
-| comentario_multilinea | \<comentario de varias líneas> |      /\*(\n)\|[^/\*]\*/      |
-| escape                |     \<secuencia de escape>     | (\n)\|(\\)\|(\")\|(\t)\|(\') |
-| opar_suma             |               +                |              +               |
-| opar_resta            |               -                |              -               |
-| opar_multiplicacion   |               \*               |              \*              |
-| opar_division         |               /                |              /               |
-| opar_potencia         |               ^                |              ^               |
-| opar_modulo           |               %                |              %               |
-| oprel_igualacion      |               ==               |              ==              |
-| oprel_diferenciacion  |               !=               |              !=              |
-| oprel_menor           |               <                |              <               |
-| oprel_menorigual      |               <=               |              <=              |
-| oprel_mayor           |               >                |              >               |
-| oprel_mayorigual      |               >=               |              >=              |
-| oplog_or              |              \|\|              |             \|\|             |
-| oplog_and             |               &&               |              &&              |
-| oplog_not             |               !                |              !               |
-| parA                  |               (                |              (               |
-| parB                  |               )                |              )               |
-| corA                  |               [                |              [               |
-| corB                  |               ]                |              ]               |
-| llaveA                |               {                |              {               |
-| llaveB                |               }                |              }               |
-| igual                 |               =                |              =               |
-| puntocoma             |               ;                |              ;               |
-| dospuntos             |               :                |              :               |
-| punto                 |               .                |              .               |
-| coma                  |               ,                |              ,               |
-| comilla_simple        |               '                |              '               |
-| comilla_doble         |               "                |              "               |
-| id                    |        <identificador>         |       [a-z][a-z0-9_]*        |
-| int                   |        <número entero>         |            [0-9]+            |
-| double                |        <número decimal>        |        [0-9]+\.[0-9]+        |
-| char                  |        <cualquier char>        |        '[\x0-\x255]'         |
-| boolean               |        <valor booleano>        |         true\|false          |
-| string                |       <cualquier cadena>       |             ".*"             |
+| Token                 |             Lexema             |                    Patrón                    |
+| --------------------- | :----------------------------: | :------------------------------------------: |
+| comentario            |   \<comentario de una linea>   |                     //.*                     |
+| comentario_multilinea | \<comentario de varias líneas> | /\*([^*]\|[\r\n]\|(\*+([^*/]\|[\r\n])))*\*+/ |
+| escape                |     \<secuencia de escape>     |       (\n)\|(\r)\|(\t)\|(")\|(')\|(\\)       |
+| op_incremento         |               ++               |                      ++                      |
+| op_decremento         |               --               |                      --                      |
+| opar_suma             |               +                |                      +                       |
+| opar_resta            |               -                |                      -                       |
+| opar_multiplicacion   |               \*               |                      \*                      |
+| opar_division         |               /                |                      /                       |
+| opar_potencia         |               ^                |                      ^                       |
+| opar_modulo           |               %                |                      %                       |
+| oprel_igualacion      |               ==               |                      ==                      |
+| oprel_diferenciacion  |               !=               |                      !=                      |
+| oprel_menor           |               <                |                      <                       |
+| oprel_menorigual      |               <=               |                      <=                      |
+| oprel_mayor           |               >                |                      >                       |
+| oprel_mayorigual      |               >=               |                      >=                      |
+| oplog_or              |              \|\|              |                     \|\|                     |
+| oplog_and             |               &&               |                      &&                      |
+| oplog_not             |               !                |                      !                       |
+| op_ternario           |               ?                |                      ?                       |
+| parA                  |               (                |                      (                       |
+| parB                  |               )                |                      )                       |
+| corA                  |               [                |                      [                       |
+| corB                  |               ]                |                      ]                       |
+| llaveA                |               {                |                      {                       |
+| llaveB                |               }                |                      }                       |
+| igual                 |               =                |                      =                       |
+| puntocoma             |               ;                |                      ;                       |
+| dospuntos             |               :                |                      :                       |
+| punto                 |               .                |                      .                       |
+| coma                  |               ,                |                      ,                       |
+| comilla_simple        |               '                |                      '                       |
+| comilla_doble         |               "                |                      "                       |
+| id                    |        <identificador>         |              [a-z_$][a-z0-9_$]*              |
+| int                   |        <número entero>         |                    [0-9]+                    |
+| double                |        <número decimal>        |                [0-9]+\.[0-9]+                |
+| char                  |        <cualquier char>        | '({escape}\|[\x00-\x26\x28-\x5B\x5D-\x7F])'  |
+| boolean               |        <valor booleano>        |                 true\|false                  |
+| string                |       <cualquier cadena>       |           "({escape}\|[^\n\"\\])*\           |
 
 #### Palabras reservadas
 
@@ -74,222 +87,263 @@
 
 ### Símbolos no terminales
 
-| Token                | Descripción                                                        |
-| -------------------- | ------------------------------------------------------------------ |
-| INI                  | Estado inicial de la sintáxis                                      |
-| SS                   | Cuerpo del documento para declaración de funciones, métodos y exec |
-| DECLARACION_FUNCION  | Declaración de una función                                         |
-| DECLARACION_METODO   | Declaración de un método                                           |
-| EXEC                 | Definición del inicio de la ejecución                              |
-| PARAMETRO            | Parámetro de entrada a una función                                 |
-| S                    | Cuerpo de una función, método, o cualquier otra estructura         |
-| DECLARACION_VARIABLE | Declaración de una variable con su tipo                            |
-| ASIGNACION_VARIABLE  | Asignación de valor a una variable                                 |
-| INCREMENTO_VARIABLE  | Sentencia de incremento de una variable                            |
-| INCREMENTO           | Incremento del valor de una variable numérica                      |
-| DECREMENTO_VARIABLE  | Sentencia de decremento de una variable                            |
-| DECREMENTO           | Decremento del valor de una variable numérica                      |
-| DECLARACION_VECTOR   | Declaración de un vector                                           |
-| ACCESI_VECTOR        | Acceso al valor de un vector en una posición específica            |
-| MODIFICACION_VECTOR  | Modificación del valor de un vector en una posición específica     |
-| DECLARACION_LISTA    | Declaración de una lista dinámica                                  |
-| ADD_LISTA            | Agregación de un valor al final de una lista                       |
-| ACCESO_LISTA         | Acceso al valor de una lista en una posición específica            |
-| MODIFICACION_LISTA   | Modificación del valor de una lista en una posición específica     |
-| S_IF                 | Sentencia de control if                                            |
-| S_SWITCH             | Sentencia de control switch                                        |
-| S_WHILE              | Sentencia cíclica while                                            |
-| S_FOR                | Sentencia cíclica for                                              |
-| S_DO                 | Sentencia cíclica do-while                                         |
-| S_LLAMADA            | LLamada a una función o método previamente definid                 |
-| S_RETURN             | Retorno de valor en una función                                    |
-| TIPO                 | Tipo otorgado a una variable                                       |
-| EXPRESION_ARITMETICA | Expresión de operación aritmética                                  |
-| PRODUCCION_2         | d                                                                  |
-| PRODUCCION_2         | d                                                                  |
-| PRODUCCION_2         | d                                                                  |
-| PRODUCCION_2         | d                                                                  |
-| PRODUCCION_2         | d                                                                  |
-| PRODUCCION_2         | d                                                                  |
-| EOF                  | d                                                                  |
+| Token                | Descripción                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| INI                  | Estado inicial de la sintáxis                                  |
+| INS                  | Lista de instrucciones                                         |
+| S                    | Instrucción                                                    |
+| DECLARACION_FUNCION  | Declaración de una función                                     |
+| DECLARACION_METODO   | Declaración de un método                                       |
+| EXEC                 | Definición del inicio de la ejecución                          |
+| DECLARACION_VARIABLE | Declaración de una variable con su tipo                        |
+| ASIGNACION_VARIABLE  | Asignación de valor a una variable declarada                   |
+| INCREMENTO_VARIABLE  | Sentencia de incremento de una variable                        |
+| DECREMENTO_VARIABLE  | Sentencia de decremento de una variable                        |
+| DECLARACION_VECTOR   | Declaración de un vector                                       |
+| MODIFICACION_VECTOR  | Modificación del valor de un vector en una posición específica |
+| DECLARACION_LISTA    | Declaración de una lista dinámica                              |
+| ADD_LISTA            | Agregación de un valor al final de una lista                   |
+| MODIFICACION_LISTA   | Modificación del valor de una lista en una posición específica |
+| S_IF                 | Sentencia de control if                                        |
+| S_SWITCH             | Sentencia de control switch                                    |
+| S_WHILE              | Sentencia cíclica while                                        |
+| S_FOR                | Sentencia cíclica for                                          |
+| S_DO                 | Sentencia cíclica do-while                                     |
+| S_LLAMADA            | LLamada a una función o método previamente definido            |
+| S_RETURN             | Retorno de valor en una función                                |
+| S_BREAK              | Sentencia de interrupcion de un ciclo                          |
+| S_CONTINUE           | Sentencia de continuación de un ciclo                          |
+| BLOQUE               | Bloque de instrucciones de una sentencia o función             |
+| TIPO                 | Tipo de una variable o función                                 |
+| PARAMETROS           | Lista de parámetros                                            |
+| PARAMETRO            | Parámetro de una función                                       |
+| E                    | Expresion de cualquier tipo                                    |
+| LLAMADA              | Llamada de una funcion en una expresion                        |
+| ACCESO_VECTOR        | Acceso a la posición de un vector                              |
+| ACCESO_LISTA         | Acceso a la posición de una lista                              |
+| INCREMENTO           | Incremento del valor de expresion                              |
+| DECREMENTO           | Decremento del valor de expresion                              |
+| VALORES              | Lista de expresiones                                           |
+| S_ELSE               | Sentencia else de una sentencia if                             |
+| CASES                | Lista de sentencias case                                       |
+| CASE                 | Sentencia case de una sentencia switch                         |
+| DEFAULT              | Sentencia default de una sentencia switch                      |
+| INICIALIZACION       | Inicialización de una sentencia for                            |
+| ACTUALIZACION        | Actualización de una sentencia for                             |
+| DECLARACION          | Declaración de inicializacion de un for                        |
+| ASIGNACION           | Asignación de inicializacion de un for                         |
+| EOF                  | Final de las instrucciones                                     |
 
 ## Sintáxis
 
-```rust
+Estado inicial = [INI]
 
-Estado inicial = INI
+```py
 
-INI  =>  [SS] EOF
+INI
+     : [INS] [EOF]
+	| error [EOF]
 
-SS
-     =>   [DECLARACION_FUNCION] [SS]
-     |    [DECLARACION_METODO] [SS]
-     |    [EXEC] [SS]
-     |    error [SS]
-     |    empty
-
-DECLARACION_FUNCION
-     =>   [TIPO] id parA [PARAMETRO] parB llaveA [S] llaveB
-     |    [TIPO] id parA  parB llaveA [S] llaveB
-
-DECLARACION_METODO
-     =>   r_void id parA [PARAMETRO] parB llaveA [S] llaveB
-     |    r_void id parA  parB llaveA [S] llaveB
-
-TIPO
-     =>   r_int
-     |    r_double
-     |    r_boolean
-     |    r_char
-     |    r_string
-
-PARAMETRO
-     =>   [TIPO] id
-     |    [TIPO] id coma [PARAMETRO]
-
-EXEC  =>  r_exec [S_LLAMADA]
+INS
+        : [INS] [S]
+        | [S]
 
 S
-     =>   [DECLARACION_VARIABLE] [S]
-     |    [ASIGNACION_VARIABLE] [S]
-     |    [INCREMENTO_VARIABLE] [S]
-     |    [DECREMENTO_VARIABLE] [S]
-     |    [DECLARACION_VECTOR] [S]
-     |    [MODIFICACION_VECTOR] [S]
-     |    [DECLARACION_LISTA] [S]
-     |    [ADD_LISTA] [S]
-     |    [MODIFICACION_LISTA] [S]
-     |    [S_IF] [S]
-     |    [S_SWITCH] [S]
-     |    [S_WHILE] [S]
-     |    [S_FOR] [S]
-     |    [S_DO] [S]
-     |    [S_LLAMADA] [S]
-     |    [S_RETURN] [S]
-     |    error [S]
-     |    empty
+        : [DECLARACION_FUNCION]
+        | [DECLARACION_METODO]
+        | [EXEC]
+        | [DECLARACION_VARIABLE]
+        | [ASIGNACION_VARIABLE]
+        | [INCREMENTO_VARIABLE]
+        | [DECREMENTO_VARIABLE]
+        | [DECLARACION_VECTOR]
+        | [MODIFICACION_VECTOR]
+        | [DECLARACION_LISTA]
+        | [ADD_LISTA]
+        | [MODIFICACION_LISTA]
+        | [S_IF]
+        | [S_SWITCH]
+        | [S_WHILE]
+        | [S_FOR]
+        | [S_DO]
+        | [S_LLAMADA]
+        | [S_RETURN]
+        | [S_BREAK]
+        | [S_CONTINUE]
+        | error puntocoma
 
-DECLARACION_VARIABLE
-     =>   [TIPO] id puntocoma
-     |    [TIPO] id igual [VALOR] puntocoma
+BLOQUE
+        : llaveA [INS] llaveB
+        | llaveA llaveB
+	      | llaveA error llaveB
 
-ASIGNACION_VARIABLE
-     =>   [ASIGNACION] puntocoma
+DECLARACION_FUNCION
+        : [TIPO] id parA [PARAMETROS] parB [BLOQUE]
+        | [TIPO] id parA parB [BLOQUE]
+        | [TIPO] id parA error llaveB
 
-ASIGNACION
-     =>   id igual [EXPRESION]
+DECLARACION_METODO
+        : r_void id parA [PARAMETROS] parB [BLOQUE]
+        | r_void id parA parB [BLOQUE]
+        | r_void id parA error llaveB
 
-EXPRESION
-     =>   [EXPRESION] opar_suma [EXPRESION]
-     |    [EXPRESION] opar_resta [EXPRESION]
-     |    [EXPRESION] opar_multiplicacion [EXPRESION]
-     |    [EXPRESION] opar_division [EXPRESION]
-     |    [EXPRESION] opar_potencia [EXPRESION]
-     |    [EXPRESION] opar_modulo [EXPRESION]
-     |    [EXPRESION] oprel_igualacion [EXPRESION]
-     |    [EXPRESION] oprel_diferenciacion [EXPRESION]
-     |    [EXPRESION] oprel_menor [EXPRESION]
-     |    [EXPRESION] oprel_menorigual [EXPRESION]
-     |    [EXPRESION] oprel_mayor [EXPRESION]
-     |    [EXPRESION] oprel_mayorigual [EXPRESION]
-     |    [EXPRESION] oplog_or [EXPRESION]
-     |    [EXPRESION] oplog_and [EXPRESION]
-     |    opar_resta [EXPRESION]
-     |    parA [TIPO] parB [EXPRESION]
-     |    oplog_not [EXPRESION]
-     |    opar_resta [EXPRESION]
-     |    parA [EXPRESION] parB
-     |    id
-     |    int
-     |    double
-     |    char
-     |    string
-     |    boolean
-     |    [LLAMADA]
-     |    [ACCESO_VECTOR]
-     |    [ACCESO_LISTA]
+[PARAMETROS]
+        : [PARAMETROS] coma [TIPO] id
+        | [TIPO] id
 
+[EXEC]
+        : r_exec [S_LLAMADA]
 
-INCREMENTO_VARIABLE  =>  [INCREMENTO] puntocoma
+[DECLARACION_VARIABLE]
+        : [TIPO] id puntocoma
+        | [TIPO] id igual E puntocoma
 
-DECREMENTO_VARIABLE  =>  [DECREMENTO] puntocoma
+[ASIGNACION_VARIABLE]
+        : id igual E puntocoma
 
-INCREMENTO  =>  id opar_suma opar_suma
+[TIPO]
+        : r_int
+        | r_double
+        | r_boolean
+        | r_char
+        | r_string
 
-DECREMENTO  =>  id opar_resta opar_resta
+E
+        : [E] opar_suma [E]
+        | [E] opar_resta [E]
+        | [E] opar_multiplicacion [E]
+        | [E] opar_division [E]
+        | [E] opar_potencia [E]
+        | [E] opar_modulo [E]
+        | [E] oprel_igualacion [E]
+        | [E] oprel_diferenciacion [E]
+        | [E] oprel_menor [E]
+        | [E] oprel_menorigual [E]
+        | [E] oprel_mayor [E]
+        | [E] oprel_mayorigual [E]
+        | [E] oplog_or [E]
+        | [E] oplog_and [E]
+        | opar_resta [E] %prec op_negacion
+        | oplog_not [E]
+        | [E] op_ternario [E] dospuntos [E] %prec op_condicional
+        | parA [E] parB %prec op_group
+        | [LLAMADA] %prec op_call
+        | [ACCESO_VECTOR]  %prec op_vector
+        | [ACCESO_LISTA] %prec op_list
+        | parA [TIPO] parB [E] %prec op_casteo
+        | [E] op_incremento
+        | [E] op_decremento
+        | id
+        | int
+        | double
+        | char
+        | string
+        | boolean
 
-LISTA_VALORES
-     =>   [ELEMENTO_VALOR]
-     |    empty
+INCREMENTO_VARIABLE
+        : [INCREMENTO] puntocoma
 
-ELEMENTO_VALOR
-     =>   [EXPRESION]
-     |    [EXPRESION] coma [ELEMENTO_VALOR]
+DECREMENTO_VARIABLE
+        : [DECREMENTO] puntocoma
 
+INCREMENTO
+        : id op_incremento
+
+DECREMENTO
+        : id op_decremento
+
+VALORES
+        : [VALORES] coma [E]
+        | [E]
 
 DECLARACION_VECTOR
-     =>   [TIPO] corA corB id igual r_new [TIPO] corA [EXPRESION] corB puntocoma
-     |    [TIPO] corA corB id igual llaveA [LISTA_VALORES] llaveB puntocoma
+        : [TIPO] corA corB id igual r_new [TIPO] corA [E] corB puntocoma
+        | [TIPO] corA corB id igual llaveA [VALORES] llaveB puntocoma
 
-ACCESO_VECTOR  =>  id corA [EXPRESION] corB
+ACCESO_VECTOR
+        : id corA [E] corB
 
-MODIFICACION_VECTOR  =>  [ACCESO_VECTOR] igual [EXPRESION] puntocoma
+MODIFICACION_VECTOR
+        : id corA [E] corB igual [E] puntocoma
 
+DECLARACION_LISTA
+        : r_list oprel_menor [TIPO] oprel_mayor id igual r_new r_list oprel_menor [TIPO] oprel_mayor puntocoma
+        | r_list oprel_menor [TIPO] oprel_mayor id igual [E] puntocoma
 
-DECLARACION_LISTA  =>  r_list menor [TIPO] mayor id igual r_new r_list menor [TIPO] mayor puntocoma
+ADD_LISTA
+        : id punto r_add parA [E] parB puntocoma
 
-ADD_LISTA  =>  id punto add parA [EXPRESION] parB puntocoma
+ACCESO_LISTA
+        : id corA corA [E] corB corB
 
-ACCESO_LISTA  =>  id corA corA [EXPRESION] corB corB
+MODIFICACION_LISTA
+        : id corA corA [E] corB corB igual [E] puntocoma
 
-MODIFICACION_LISTA  =>  [ACCESO_LISTA] igual [EXPRESION] puntocoma
+S_IF
+        : r_if parA [E] parB [BLOQUE]
+        | r_if parA [E] parB [BLOQUE] [S_ELSE]
+	| r_if parA error parB [BLOQUE]
 
-S_IF  =>  r_if parA [EXPRESION_BOOLEANA] parB llaveA [S] llaveB S_ELSE
 
 S_ELSE
-     =>   r_else llaveA [S] llaveB
-     |    r_else S_IF
-     |    empty
+        : r_else [BLOQUE]
+        | r_else [S_IF]
 
-S_SWITCH  =>  r_switch parA id parB llaveA S_CASE llaveB
+S_SWITCH
+        : r_switch parA [E] parB llaveA [CASES] [S_DEFAULT] llaveB
+        | r_switch parA [E] parB llaveA [CASES] llaveB
+        | r_switch parA [E] parB llaveA [S_DEFAULT] llaveB
+        | r_switch parA error llaveB
 
-C
-     =>  [S] [C]
-     |   r_break puntocoma [C]
+CASES
+        : [CASES] r_case [E] dospuntos [INS]
+        | r_case [E] dospuntos [INS]
 
-S_CASE
-     =>   r_case [EXPRESION] dospuntos [C] S_CASE
-     |    empty
+S_DEFAULT
+        : r_default dospuntos [INS]
 
-S_DEFAULT  =>  r_default dospuntos [C]
-
-
-S_WHILE  =>  r_while parA [CONDICION] parB llaveA [C] llaveB
+S_WHILE
+        : r_while parA [E] parB [BLOQUE]
+        | r_while parA error llaveB
 
 S_FOR
-     =>   r_for parA [DECLARACION_VARIABLE] [CONDICION] puntocoma [ACTUALIZACION] parB llaveA [C] llaveB
-     |    r_for parA [ASIGNACION_VARIABLE] [CONDICION] puntocoma [ACTUALIZACION] parB llaveA [C] llaveB
+        : r_for parA [INICIALIZACION] puntocoma [E] puntocoma [ACTUALIZACION] parB [BLOQUE]
+        | r_for parA error llaveB
 
-CONDICION
-     =>   [EXPRESION] oprel_igualacion [EXPRESION]
-     |    [EXPRESION] oprel_diferenciacion [EXPRESION]
-     |    [EXPRESION] oprel_menor [EXPRESION]
-     |    [EXPRESION] oprel_menorigual [EXPRESION]
-     |    [EXPRESION] oprel_mayor [EXPRESION]
-     |    [EXPRESION] oprel_mayorigual [EXPRESION]
-        
+INICIALIZACION
+        : [ASIGNACION]
+        | [DECLARACION]
+
 ACTUALIZACION
-     =>   [INCREMENTO]
-     |    [DECREMENTO]
-     |    [ASIGNACION]
+        : [INCREMENTO]
+        | [DECREMENTO]
+        | [ASIGNACION]
 
-S_DO  =>  r_do llaveA [S] llaveB r_while parA [EXPRESION_BOOLEANA] parB puntocoma
+ASIGNACION
+        : id igual [E]
 
+DECLARACION
+        : [TIPO] id igual [E]
 
-S_LLAMADA  =>  [LLAMADA] puntocoma
+S_DO
+        : r_do [BLOQUE] r_while parA [E] parB puntocoma
+        | r_do error puntocoma
 
-LLAMADA  =>  id parA [LISTA_VALORES] parB
+S_LLAMADA
+        : [LLAMADA] puntocoma
 
-S_RETURN  =>  r_return [EXPRESION] puntocoma
+LLAMADA
+        : id parA parB
+        | id parA [VALORES] parB
+
+S_RETURN
+        : r_return [E] puntocoma
+        | r_return puntocoma
+
+S_BREAK
+        : r_break puntocoma
+
+S_CONTINUE
+        : r_continue puntocoma
 
 ```

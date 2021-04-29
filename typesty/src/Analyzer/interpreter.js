@@ -14,7 +14,7 @@ exec main(5);
 */
 
 import s from './symbols.js'
-import { copyArray } from './util'
+import { copyArray } from '../services/util'
 
 // ===================> CORE <========================
 
@@ -523,17 +523,9 @@ const operations = {
   and: (izq, der) => Boolean(izq.Valor) && Boolean(der.Valor),
   or: (izq, der) => Boolean(izq.Valor) || Boolean(der.Valor),
   casteo: (izq, der) => {
-    switch (izq.Valor) {
-      case 'int':
-        return parseInt(der.Valor)
-      case 'double':
-        return parseFloat(der.Valor)
-      case 'string':
-        return String(der.Valor)
-      case 'char':
-        return String.fromCharCode(der.Valor)
-      default:
-    }
+    if (['int', 'double'].includes(izq.Tipo)) return der.Tipo === 'char' ? der.Valor.charCodeAt(0) : parseInt(der.Valor)
+    else if (izq.Tipo === 'string') return String(der.Valor)
+    else if (izq.Tipo === 'char') return String.fromCharCode(der.Valor)
   },
   incremento: (izq, _der) => izq.Valor + 1,
   decremento: (izq, _der) => izq.Valor - 1
@@ -558,7 +550,14 @@ const getSymbols = () => {
     for (let env of environments) {
       for (let [id, value] of Object.entries(env.Simbolos)) {
         if (value.Tipo_retorno)
-          symbols.push([value.Linea, value.Columna, env.ID, value.Tipo, value.Tipo_retorno || 'void', value.ID])
+          symbols.push([
+            value.Linea,
+            value.Columna,
+            env.ID,
+            value.Tipo_retorno === 'void' ? 'Metodo' : 'Funcion',
+            value.Tipo_retorno,
+            value.ID
+          ])
         else symbols.push([value.Linea, value.Columna, env.ID, 'Variable', value.Tipo, id])
       }
     }
@@ -624,6 +623,8 @@ const interpret = (INS) => {
 
   $Instructions(INS, global_env)
   $Llamada(toExecute.Llamada, global_env)
+
+  return { printed: getPrinted(), interpreted_errors: getErrors(), symbols: getSymbols() }
 }
 
 const $Instructions = (INS, env) => {
@@ -658,14 +659,14 @@ const $Instructions = (INS, env) => {
     }
 
     if (Instruction.Tipo === 'Return') {
-      if (!functions) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion return fuera de una función')
+      if (!functions.length) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion return fuera de una función')
       let Expresion = Instruction.Expresion ? $Evaluar(Instruction.Expresion, env) : null
       return { ...Instruction, Expresion }
     } else if (Instruction.Tipo === 'Break') {
-      if (!cycles) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion break fuera de una función')
+      if (!cycles.length) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion break fuera de una función')
       return Instruction
     } else if (Instruction.Tipo === 'Continue') {
-      if (!cycles) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion continue fuera de una función')
+      if (!cycles.length) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion continue fuera de una función')
       return Instruction
     }
   }
@@ -688,7 +689,7 @@ const $Evaluar = (Operacion, env) => {
     default:
   }
 
-  let left_expression = $Evaluar(Operacion.Izquierda, env)
+  let left_expression = Operacion.Izquierda ? $Evaluar(Operacion.Izquierda, env) : null
   let rigth_expression = Operacion.Derecha ? $Evaluar(Operacion.Derecha, env) : null
 
   if (!left_expression) return Error(Operacion.Linea, Operacion.Columna, `No se pudo realizar la operacion '${Operacion.Tipo}'`)
@@ -697,8 +698,8 @@ const $Evaluar = (Operacion, env) => {
     if (!rigth_expression) return Error(Operacion.Linea, Operacion.Columna, `No se pudo realizar la operacion 'condicional'`)
 
     let condition = $Evaluar(Operacion.Condicion, env)
-    if (condition.Tipo !== 'boolean')
-      return Error(condition.Linea, condition.Columna, 'Se esperaba una condición en la operación ternaria')
+    if (!condition || condition.Tipo !== 'boolean')
+      return Error(Operacion.Linea, Operacion.Columna, 'No se pudo realizar la operación ternaria')
     return condition.Valor ? left_expression : rigth_expression
   }
 
@@ -730,11 +731,13 @@ const $Declaracion = ({ Linea, Columna, Tipo_variable, ID, Expresion }, env) => 
     value = $Evaluar(Expresion, env)
     if (!value) return Error(Linea, Linea, `No se pudo realizar la declaracion`)
     if (value.Tipo !== Tipo_variable)
-      return Error(
-        Linea,
-        Columna,
-        `El tipo de la variable '${ID}' (${Tipo_variable}) no coincide con el valor asignado (${value.Tipo})`
-      )
+      if (Tipo_variable === 'double' && value.Tipo === 'int') value.Tipo = 'double'
+      else
+        return Error(
+          Linea,
+          Columna,
+          `El tipo de la variable '${ID}' (${Tipo_variable}) no coincide con el valor asignado (${value.Tipo})`
+        )
   } else value = s.Simbolo(Linea, Columna, Tipo_variable, default_values[Tipo_variable])
 
   Declare(env, ID, value)
@@ -780,8 +783,8 @@ const $Llamada = ({ Linea, Columna, ID, Parametros }, env) => {
   for (let i = 0; i < values.length; i++) {
     if (funcion.Parametros[0].Tipo_variable !== values[0].Tipo)
       return Error(
-        -1,
-        -1,
+        Linea,
+        Columna,
         `Se esperaba un parámetro ${funcion.Parametros[0].Tipo_variable} para '${funcion.Parametros[0].ID}' (${ID})`
       )
   }
@@ -798,12 +801,14 @@ const $Llamada = ({ Linea, Columna, ID, Parametros }, env) => {
   let result = $Instructions(funcion.Instrucciones, new_env)
   let return_value
 
-  if (funcion.Tipo_retorno !== 'void') {
-    if (!result) Error(Linea, Columna, `La funcion '${ID}' no retorna un valor '${funcion.Tipo_retorno}'`)
-    else if (funcion.Tipo_retorno !== result.Expresion.Tipo)
-      Error(result.Linea, result.Columna, `La función '${ID}' debe retornar un ${funcion.Tipo_retorno}`)
-    else return_value = result.Expresion
-  } else if (result && result.Expression) Error(result.Linea, result.Columna, `No se esperaba un retorno en el método '${ID}'`)
+  if (funcion.Tipo_retorno === 'void') {
+    if (result && result.Expression) Error(result.Linea, result.Columna, `No se esperaba un retorno en el método '${ID}'`)
+  } else if (result) {
+    if (funcion.Tipo_retorno !== result.Expresion.Tipo)
+      if (funcion.Tipo_retorno === 'double' && result.Expresion.Tipo === 'int') result.Expresion.Tipo = 'double'
+      else Error(result.Linea, result.Columna, `La función '${ID}' debe retornar un ${funcion.Tipo_retorno}`)
+    return_value = result.Expresion
+  } else Error(Linea, Columna, `La funcion '${ID}' no retorna un valor '${funcion.Tipo_retorno}'`)
 
   functions.pop()
   return return_value
@@ -1176,8 +1181,10 @@ const $DoWhile = ({ Linea, Columna, Condicion, Instrucciones }, env) => {
         )
     }
 
+  let first_iteration = s.Simbolo(Linea, Columna, 'boolean', true)
+
   while (true) {
-    let condition = $Evaluar(Condicion, env)
+    let condition = first_iteration || $Evaluar(Condicion, env)
     if (!condition) {
       cycles.pop()
       return Error(Linea, Columna, `No se pudo ejecutar la sentencia do-while`)
@@ -1185,6 +1192,10 @@ const $DoWhile = ({ Linea, Columna, Condicion, Instrucciones }, env) => {
     if (condition.Tipo !== 'boolean') {
       cycles.pop()
       return Error(Linea, Columna, 'Se esperaba una condicion dentro del do-while')
+    }
+    if (!condition.Valor) {
+      cycles.pop()
+      return
     }
 
     let result = $Instructions(INS, new_env)
@@ -1198,11 +1209,8 @@ const $DoWhile = ({ Linea, Columna, Condicion, Instrucciones }, env) => {
       } else if (result.Tipo === 'Continue') continue
     }
 
-    if (!condition.Valor) {
-      cycles.pop()
-      return
-    }
+    first_iteration = null
   }
 }
 
-export { interpret, getErrors, getSymbols, getPrinted }
+export { interpret }

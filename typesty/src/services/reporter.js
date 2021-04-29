@@ -1,4 +1,4 @@
-const report = (name, table) => {
+const reportTable = (name, table) => {
   let html_file = `<!DOCTYPE html>
   <html>
   <head>
@@ -169,6 +169,8 @@ const graphAST = (parsed) => {
   //Runtime.getRuntime().exec(command)
 }
 
+
+
 const printNodes = (nodes, index) => {
   let temp_str = ''
 
@@ -184,6 +186,4 @@ const printNodes = (nodes, index) => {
   return temp_str + printNodes(nodes.left, index + 1) + printNodes(nodes.right, index + 1)
 }
 
-const copyArray = (INS) => JSON.parse(JSON.stringify(INS))
-
-export { report, graphAST, copyArray }
+export {reportTable, graphAST}

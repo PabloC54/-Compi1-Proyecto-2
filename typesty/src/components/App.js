@@ -2,17 +2,17 @@ import { useState, useRef } from 'react'
 
 import { reportTable, graphAST } from '../services/reporter'
 import { toTitle, saveFile } from '../services/util'
-import { interpret } from '../Analyzer/interpreter'
+import { interpret } from '../compiler/interpreter'
 import { Logo } from './Logo'
 import { Button } from './Button'
 import { Code } from './Code'
 import { Console } from './Console'
 import { Dropdown } from './Dropdown'
-const { parse } = require('../Analyzer/analyzer.js')
+const { parse } = require('../compiler/analyzer.js')
+
+const INITIAL_FILE = 'void main(){\n\t\n}\n\nexec main();'
 
 const App = () => {
-  const INITIAL_FILE = 'void main(){\n\t\n}\n\nexec main();'
-
   const [content, setContent] = useState({ number: 1, text: INITIAL_FILE })
   const [tabs, setTabs] = useState({ 1: content.text })
   const [expanded, setExpanded] = useState(false)

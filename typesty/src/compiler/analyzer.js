@@ -561,7 +561,7 @@ _handle_error:
     return true;
 }};
 
-  const s = require('/home/pablo/Documentos/src/Universidad/-Compi1-Proyecto-2/typesty/src/Analyzer/symbols.js')
+  const s = require('/home/pablo/Documentos/src/Universidad/-Compi1-Proyecto-2/typesty/src/compiler/symbols.js')
   const errors = []
 
   const Error = function (Linea, Columna, Tipo, Mensaje) {

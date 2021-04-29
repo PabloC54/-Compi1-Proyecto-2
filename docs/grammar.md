@@ -1,20 +1,20 @@
-# Gramática de Regexive
+# 1. Gramática de Regexive
 
-## Contenidos
-- [Gramática de Regexive](#gramática-de-regexive)
-  - [Contenidos](#contenidos)
-  - [Alfabeto](#alfabeto)
-    - [Símbolos terminales](#símbolos-terminales)
-      - [Expresiones regulares](#expresiones-regulares)
-      - [Palabras reservadas](#palabras-reservadas)
-    - [Símbolos no terminales](#símbolos-no-terminales)
-  - [Sintáxis](#sintáxis)
+## 1.1. Contenidos
+- [1. Gramática de Regexive](#1-gramática-de-regexive)
+  - [1.1. Contenidos](#11-contenidos)
+  - [1.2. Alfabeto](#12-alfabeto)
+    - [1.2.1. Símbolos terminales](#121-símbolos-terminales)
+      - [1.2.1.1. Expresiones regulares](#1211-expresiones-regulares)
+      - [1.2.1.2. Palabras reservadas](#1212-palabras-reservadas)
+    - [1.2.2. Símbolos no terminales](#122-símbolos-no-terminales)
+  - [1.3. Sintáxis](#13-sintáxis)
 
-## Alfabeto
+## 1.2. Alfabeto
 
-### Símbolos terminales
+### 1.2.1. Símbolos terminales
 
-#### Expresiones regulares
+#### 1.2.1.1. Expresiones regulares
 
 | Token                 |             Lexema             |                    Patrón                    |
 | --------------------- | :----------------------------: | :------------------------------------------: |
@@ -59,7 +59,7 @@
 | boolean               |        <valor booleano>        |                 true\|false                  |
 | string                |       <cualquier cadena>       |           "({escape}\|[^\n\"\\])*\           |
 
-#### Palabras reservadas
+#### 1.2.1.2. Palabras reservadas
 
 | Token      | Lexema   |
 | ---------- | -------- |
@@ -85,7 +85,7 @@
 | r_add      | add      |
 | r_exec     | exec     |
 
-### Símbolos no terminales
+### 1.2.2. Símbolos no terminales
 
 | Token                | Descripción                                                    |
 | -------------------- | -------------------------------------------------------------- |
@@ -134,7 +134,7 @@
 | ASIGNACION           | Asignación de inicializacion de un for                         |
 | EOF                  | Final de las instrucciones                                     |
 
-## Sintáxis
+## 1.3. Sintáxis
 
 Estado inicial = [INI]
 

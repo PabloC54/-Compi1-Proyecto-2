@@ -10,6 +10,9 @@ Guía de uso de Typesty, un compilador web de lenguaje .ty
   - [1.3. Glosario](#13-glosario)
   - [1.4. Uso de Typesty](#14-uso-de-typesty)
   - [1.5. Interfaz Gráfica](#15-interfaz-gráfica)
+    - [1.5.1. Vista principal](#151-vista-principal)
+    - [1.5.2. Vista en dispositivos medianos](#152-vista-en-dispositivos-medianos)
+    - [1.5.3. Vista en dispositivos pequeños](#153-vista-en-dispositivos-pequeños)
   - [1.6. Lenguaje Typesty](#16-lenguaje-typesty)
     - [1.6.1. Comentarios](#161-comentarios)
     - [1.6.2. Tipos de datos](#162-tipos-de-datos)
@@ -85,9 +88,11 @@ El cliente de Typesty no ha sido deployado, pero puede ser usado de la anterior 
 
 ## 1.5. Interfaz Gráfica
 
-La interfaz de Typesty corre en el navegador, siendo necesario un navegador con javascript activado. 
+La interfaz de Typesty corre en el navegador, siendo necesario un navegador con javascript activado.
 
 Typesty permite la edición de archivos locales, el manejo de pestañas y generación de reportes varios.
+
+### 1.5.1. Vista principal
 
 !['Interfaz de Typesty'](img/client.png)
 
@@ -99,7 +104,7 @@ Typesty permite la edición de archivos locales, el manejo de pestañas y genera
 
    - Guardar archivo: Descarga el contenido de la pestaña actual en un archivo .ty.
 
-   - Reportar errores: Genera un html con los errores encontrados en la compilación de código fuente, y posteriormente lo descarga. Es necesario haber compilado y fallado en el intento para poder generar el reporte de errores.
+   - Reportar errores: Genera un html con los errores encontrados en la compilación de código fuente, y lo muestra en una ventana flotant. Es necesario haber compilado y fallado en el intento para poder generar el reporte de errores.
 
    - Reportar AST: Genera un grafo con el árbol de sintáxis abstracta (AST) generado en la compilación del código fuente. Es necesario haber compilado exitosamente para poder generar el grafo del AST.
 
@@ -120,6 +125,16 @@ Typesty permite la edición de archivos locales, el manejo de pestañas y genera
 4. Editor de código fuente: cuadro de código de entrada. En este se visualizan los archivos abiertos. Este editor posee el contenido de la pestaña actual, pudiendo cambiar entre pestañas sin problema. Para facilidad de diseño se hizo uso de la herramienta CodeMirror, específicamente de su componente de React.
 
 5. Consola de salida: consola de Typesty donde se visualizan los output del código fuente, así como los errores y avisos varios.
+
+La interfaz de Typesty es responsiva. Se puede acceder desde cualquier dispositivo cómodamente.
+
+### 1.5.2. Vista en dispositivos medianos
+
+!['Interfaz - media'](img/medium-view.png)
+
+### 1.5.3. Vista en dispositivos pequeños
+
+!['Interfaz - pequeña'](img/small-view.png)
 
 ## 1.6. Lenguaje Typesty
 
@@ -773,18 +788,21 @@ Al intérpretar el código se realizan los siguientes pasos:
 Código de generación de números fibonacci:
 
 ```cpp
+// NÚMEROS DE FIBONACCI
 void main(){
-  int num = 10;
-  print(num+" números de fibonacci:");
+  int num = 15;
+  print("Primeros "+num+" números de Fibonacci");
+
   for(int i = 1; i <= num; i++){
-  	print(fibonacci(i));
+	print(i+": "+fibonacci(i));
   }
 }
 
 int fibonacci(int num){
-  if(num <= 0){return 0;}
-  if(num == 1 || num == 2){return 1;}
-  return fibonacci(num-1) + fibonacci(num-2);
+  if(num <= 0) { return 0; }
+  if(num == 1 || num == 2){ return 1; }
+  
+  return fibonacci(num - 1) + fibonacci(num - 2);  
 }
 
 exec main();

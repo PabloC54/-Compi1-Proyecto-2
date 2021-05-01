@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react'
 
 import { reportTable, graphAST } from '../services/reporter'
-import { toTitle, saveFile } from '../services/util'
+import { toTitle, saveFile, copyArray } from '../services/util'
 import { interpret } from '../compiler/interpreter'
 import { Logo } from './Logo'
+import { Credits } from './Credits'
 import { Button } from './Button'
 import { Code } from './Code'
 import { Console } from './Console'
@@ -13,21 +14,20 @@ import 'reactjs-popup/dist/index.css'
 import { Graphviz } from 'graphviz-react'
 const { parse } = require('../compiler/analyzer.js')
 
-const INITIAL_FILE = 'void main(){\n\t\n}\n\nexec main();'
+const INITIAL_FILE = 'void main(){\n  \n}\n\nexec main();'
 
 const App = () => {
   const [popupOpen, setPopupOpen] = useState(false)
   const [renderedPopup, setRenderedPopup] = useState(<></>)
-  const [logs, setLogs] = useState([])
+  const [toDownload, setToDownload] = useState({ name: '', content: '' })
 
-  const [content, setContent] = useState({ number: 1, text: INITIAL_FILE })
-  const [tabs, setTabs] = useState({ 1: content.text })
+  const [content, setContent] = useState({ name: 'Nuevo archivo', text: INITIAL_FILE })
+  const [tabs, setTabs] = useState([content])
   const [expanded, setExpanded] = useState(false)
   const [parsed, setParsed] = useState({})
   const [errors, setErrors] = useState([])
   const [symbols, setSymbols] = useState([])
-
-  const [toDownload, setToDownload] = useState({ name: '', content: '' })
+  const [logs, setLogs] = useState([])
 
   const inputFile = useRef(null)
 
@@ -41,31 +41,46 @@ const App = () => {
   //> File handling
 
   const handleNewFile = () => {
-    setContent({ ...content, text: INITIAL_FILE })
-    Log('Nuevo archivo .ty')
+    let temp_tabs = copyArray(tabs),
+      name = getNewTabName()
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)] = { name, text: INITIAL_FILE }
+
+    setTabs(temp_tabs)
+    setContent({ name, text: INITIAL_FILE })
+    Log('Se inició un nuevo archivo')
   }
 
-  const handleFileOpen = () => {
-    inputFile.current.click()
-  }
+  const handleFileOpen = () => inputFile.current.click()
 
   let fileReader
   const handleFileUpload = (file) => {
     if (file === undefined) return
+    for (let tab of tabs)
+      if (tab.name === file.name) {
+        handleChangeTab(tabs.indexOf(tab))
+        return Log(`El archivo ${file.name} ya se encuentra abierto`)
+      }
+
     fileReader = new FileReader()
+    fileReader.name = file.name
     fileReader.onloadend = handleFileRead
     fileReader.readAsText(file)
-    Log("Se abrió '" + file.name + "'")
   }
 
   const handleFileRead = () => {
-    const text = fileReader.result
-    setContent({ ...content, text: text })
+    const { name, result } = fileReader
+
+    let temp_tabs = copyArray(tabs)
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = content.text
+
+    setTabs([...temp_tabs, { name, text: result }])
+    setContent({ name, text: result })
+    Log(`Se abrió '${name}'`)
   }
 
   const handleFileSave = () => {
-    saveFile({ name: 'code.ty', content: content.text })
-    Log('Se guardó el archivo .ty')
+    saveFile(content)
+    Log(`Se guardó el archivo ${content.name}`)
   }
 
   //> Compile
@@ -76,7 +91,6 @@ const App = () => {
 
     setErrors([])
     setSymbols([])
-    setParsed(parsed_body)
 
     console.log(parsed_body)
 
@@ -92,6 +106,8 @@ const App = () => {
         true
       )
     }
+
+    setParsed(parsed_body)
 
     let start = performance.now()
     let { printed, interpreted_errors, symbols } = interpret([...parsed_body])
@@ -128,7 +144,7 @@ const App = () => {
         <Graphviz dot={dot_content} />
       </div>
     )
-    setToDownload({ name: 'AST.dot', content: dot_content })
+    setToDownload({ name: 'AST.dot', text: dot_content })
     setPopupOpen(true)
 
     Log('Mostrando el AST')
@@ -139,7 +155,7 @@ const App = () => {
 
     let file_content = reportTable('Errores', errors)
     setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    setToDownload({ name: 'errors.html', content: file_content })
+    setToDownload({ name: 'errors.html', text: file_content })
     setPopupOpen(true)
 
     Log('Mostrando los errores encontrados')
@@ -150,44 +166,55 @@ const App = () => {
 
     let file_content = reportTable('Símbolos', symbols)
     setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    setToDownload({ name: 'symbols.html', content: file_content })
+    setToDownload({ name: 'symbols.html', text: file_content })
     setPopupOpen(true)
 
     Log('Mostrando la tabla de símbolos')
   }
 
-  //> Pestañasx
+  //> Tabs
 
-  const handleDropDown = () => (expanded ? setExpanded(false) : setExpanded(true))
+  const getNewTabName = () => {
+    const tabExists = (name) => {
+      for (let tab of tabs) if (tab.name === name) return true
+    }
+
+    let i = 1
+    while (tabExists(`Nuevo archivo ${i}`)) i++
+
+    return `Nuevo archivo ${i}`
+  }
+
+  const handleDropDown = () => setExpanded(!expanded)
 
   const handleNewTab = () => {
-    let i = 1
-    while (Object.keys(tabs).includes(String(i))) i++
+    let temp_tabs = copyArray(tabs),
+      name = getNewTabName()
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = content.text
 
-    setTabs({ ...tabs, [content.number]: content.text, [i]: INITIAL_FILE })
-    setContent({ number: parseInt(i), text: INITIAL_FILE })
+    setTabs([...temp_tabs, { name, text: INITIAL_FILE }])
+    setContent({ name, text: INITIAL_FILE })
   }
 
   const handleChangeTab = (i) => {
     setExpanded(false)
-    if (parseInt(i) === content.number) return
+    if (tabs[i].name === content.name) return
 
-    setTabs({ ...tabs, [content.number]: content.text })
-    setContent({ number: parseInt(i), text: tabs[i] })
+    let temp_tabs = copyArray(tabs)
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = content.text
+
+    setTabs(temp_tabs)
+    setContent(tabs[i])
   }
 
   const handleCloseTab = () => {
-    if (Object.keys(tabs).length === 1) return Log('Únicamente hay una pestaña')
+    if (tabs.length === 1) return Log('Únicamente hay una pestaña')
 
-    const new_tabs = Object.keys(tabs).reduce((object, key) => {
-      if (parseInt(key) !== content.number) {
-        object[parseInt(key)] = tabs[key]
-      }
-      return object
-    }, {})
+    let temp_tabs = copyArray(tabs)
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs.splice(temp_tabs.indexOf(tab), 1)
 
-    setTabs(new_tabs)
-    setContent({ number: 1, text: tabs[1] })
+    setTabs(temp_tabs)
+    setContent(temp_tabs[0])
   }
 
   //> Console
@@ -260,18 +287,22 @@ const App = () => {
           </Code>
           <div id='consolearea' className='col-lg-5'>
             <div className='row'>
-              <Button onClick={handleDropDown} text={'Pestañas'} className={'dropbtn'} width={6}>
-                <Dropdown tabs={tabs} expanded={expanded} onChange={handleChangeTab} number={content.number} />
+              <Button
+                onClick={handleDropDown}
+                text={content.name}
+                className={'dropbtn'}
+                xSmallWidth={12}
+                smallWidth={12}
+                width={6}>
+                <Dropdown tabs={tabs} expanded={expanded} onChange={handleChangeTab} name={content.name} />
               </Button>
-              <Button onClick={handleNewTab} text={'➕'} smallWidth={6} mediumWidth={3} largeWidth={3} />
-              <Button onClick={handleCloseTab} text={'✖️'} smallWidth={6} mediumWidth={3} largeWidth={3} />
+              <Button onClick={handleNewTab} text={'➕'} xSmallWidth={6} smallWidth={6} width={3} />
+              <Button onClick={handleCloseTab} text={'✖️'} xSmallWidth={6} smallWidth={6} width={3} />
             </div>
             <Console logs={logs} />
           </div>
         </div>
-        <div className='credits row'>
-          <span>⚛ Pablo Cabrera · USAC</span>
-        </div>
+        <Credits />
       </div>
     </div>
   )

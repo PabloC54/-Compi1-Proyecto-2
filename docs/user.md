@@ -62,23 +62,27 @@ La interfaz de Typesty fue realizada totalmente con React y pretende ser agradab
 
 ## 1.3. Glosario
 
-| Término    | Descripción                                               |
-| ---------- | --------------------------------------------------------- |
-| Cliente    | Aplicación que corre en el computador del usuario         |
-| React      | Tecnología que facilita la creación de interfaces         |
-| AST        | Árbol de                                                  |
-| Responsive | Página web adaptable a distintos dispositivos             |
-| Scanner    | Analizador léxico de código fuente                        |
-| Parser     | Analizador sintáctico de tokens provenientes del scanner  |
-| Intérprete | Intérprete del árbol de instrucciones obtenido del parser |
-| Token      | Clasificación de lexema                                   |
-| Lexema     | Símbolo del código fuente                                 |
+| Término    | Descripción                                                 |
+| ---------- | ----------------------------------------------------------- |
+| Cliente    | Aplicación que corre en el computador del usuario           |
+| React JS   | Tecnología que facilita la creación de interfaces web       |
+| AST        | Árbol semántico abstracto                                   |
+| Símbolos   | Tabla de símbolos guardados en compilación                  |
+| Responsive | Página web adaptable a distintos dispositivos               |
+| Compilar   | Proceso de reconocimiento e interpretación de código fuente |
+| Scanner    | Analizador léxico de código fuente                          |
+| Parser     | Analizador sintáctico de tokens provenientes del scanner    |
+| Intérprete | Intérprete del árbol de instrucciones obtenido del parser   |
+| Token      | Clasificación de lexema                                     |
+| Lexema     | Símbolo del código fuente                                   |
+| Tab        | Pestaña en inglés                                           |
+| Array      | Arreglo de elementos en inglés                              |
 
 ## 1.4. Uso de Typesty
 
 Para ejecutar Typesty en modo desarrollo se provee un comando en el package.json
 
-```
+```sh
 npm run dev
 ```
 

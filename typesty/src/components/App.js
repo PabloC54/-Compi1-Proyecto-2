@@ -8,18 +8,27 @@ import { Button } from './Button'
 import { Code } from './Code'
 import { Console } from './Console'
 import { Dropdown } from './Dropdown'
+import Popup from 'reactjs-popup'
+import 'reactjs-popup/dist/index.css'
+import { Graphviz } from 'graphviz-react'
 const { parse } = require('../compiler/analyzer.js')
 
 const INITIAL_FILE = 'void main(){\n\t\n}\n\nexec main();'
 
 const App = () => {
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [renderedPopup, setRenderedPopup] = useState(<></>)
+  const [logs, setLogs] = useState([])
+
   const [content, setContent] = useState({ number: 1, text: INITIAL_FILE })
   const [tabs, setTabs] = useState({ 1: content.text })
   const [expanded, setExpanded] = useState(false)
-  const [logs, setLogs] = useState([])
   const [parsed, setParsed] = useState({})
   const [errors, setErrors] = useState([])
   const [symbols, setSymbols] = useState([])
+
+  const [toDownload, setToDownload] = useState({ name: '', content: '' })
+
   const inputFile = useRef(null)
 
   const handleContentChange = (editor, _data, value) => {
@@ -55,7 +64,7 @@ const App = () => {
   }
 
   const handleFileSave = () => {
-    saveFile(content.text, 'code.ty')
+    saveFile({ name: 'code.ty', content: content.text })
     Log('Se guardó el archivo .ty')
   }
 
@@ -113,32 +122,41 @@ const App = () => {
     if (!Object.keys(parsed).length) return Log('No hay código compilado para generar el AST')
 
     let dot_content = graphAST(parsed)
-    let file_content = dot_content
 
-    // generar png del dot
-    saveFile(file_content, 'AST.png')
-    Log('Se descargargó el AST')
+    setRenderedPopup(
+      <div id='graph'>
+        <Graphviz dot={dot_content} />
+      </div>
+    )
+    setToDownload({ name: 'AST.dot', content: dot_content })
+    setPopupOpen(true)
+
+    Log('Mostrando el AST')
   }
 
   const handleErrorsReport = () => {
     if (!errors.length) return Log('No hay errores para reportar')
 
     let file_content = reportTable('Errores', errors)
+    setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
+    setToDownload({ name: 'errors.html', content: file_content })
+    setPopupOpen(true)
 
-    saveFile(file_content, 'errors.html')
-    Log('Se descargaron los errores encontrados')
+    Log('Mostrando los errores encontrados')
   }
 
   const handleSymbolsReport = () => {
     if (!symbols.length) return Log('No hay tabla de símbolos para reportar')
 
     let file_content = reportTable('Símbolos', symbols)
+    setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
+    setToDownload({ name: 'symbols.html', content: file_content })
+    setPopupOpen(true)
 
-    saveFile(file_content, 'symbols.html')
-    Log('Se descargó la tabla de símbolos')
+    Log('Mostrando la tabla de símbolos')
   }
 
-  //> Pestañas
+  //> Pestañasx
 
   const handleDropDown = () => (expanded ? setExpanded(false) : setExpanded(true))
 
@@ -151,6 +169,7 @@ const App = () => {
   }
 
   const handleChangeTab = (i) => {
+    setExpanded(false)
     if (parseInt(i) === content.number) return
 
     setTabs({ ...tabs, [content.number]: content.text })
@@ -178,8 +197,43 @@ const App = () => {
     if (!clear) document.getElementById('logger').scrollTop = document.getElementById('logger').scrollHeight
   }
 
+  const closePopup = () => {
+    setPopupOpen(false)
+    setRenderedPopup(<></>)
+  }
+
+  const handleDownload = () => {
+    saveFile(toDownload)
+    Log(`Se descargó ${toDownload.name}`)
+  }
+
   return (
     <div className='container'>
+      <Popup open={popupOpen} closeOnDocumentClick onClose={closePopup}>
+        <div className='popup'>
+          <div className='row'>
+            <Button
+              onClick={handleDownload}
+              text={'Descargar'}
+              className='download'
+              xSmallWidth={10}
+              smallWidth={10}
+              mediumWidth={6}
+              largeWidth={4}
+            />
+            <Button
+              onClick={closePopup}
+              text={'✖'}
+              className='close'
+              xSmallWidth={2}
+              smallWidth={2}
+              mediumWidth={2}
+              largeWidth={2}
+            />
+          </div>
+          <div className='row'>{renderedPopup}</div>
+        </div>
+      </Popup>
       <div id='wrap' className='col-lg-12'>
         <div id='buttons' className='row'>
           <input
@@ -193,12 +247,12 @@ const App = () => {
             }}
           />
           <Logo />
-          <Button onClick={handleNewFile} text={'Nuevo archivo'} />
-          <Button onClick={handleFileOpen} text={'Abrir archivo'} />
-          <Button onClick={handleFileSave} text={'Guardar archivo'} />
-          <Button onClick={handleErrorsReport} text={'Reportar errores'} />
-          <Button onClick={handleASTReport} text={'Reportar AST'} />
-          <Button onClick={handleSymbolsReport} text={'Reportar símbolos'} />
+          <Button onClick={handleNewFile} text={'Nuevo archivo'} smallWidth={6} mediumWidth={4} largeWidth={3} />
+          <Button onClick={handleFileOpen} text={'Abrir archivo'} smallWidth={6} mediumWidth={4} largeWidth={3} />
+          <Button onClick={handleFileSave} text={'Guardar archivo'} smallWidth={6} mediumWidth={4} largeWidth={3} />
+          <Button onClick={handleErrorsReport} text={'Reportar errores'} smallWidth={6} mediumWidth={4} largeWidth={3} />
+          <Button onClick={handleASTReport} text={'Reportar AST'} smallWidth={6} mediumWidth={4} largeWidth={3} />
+          <Button onClick={handleSymbolsReport} text={'Reportar símbolos'} smallWidth={6} mediumWidth={4} largeWidth={3} />
         </div>
         <div className='row'>
           <Code onChange={handleContentChange} text={content.text}>
@@ -209,11 +263,14 @@ const App = () => {
               <Button onClick={handleDropDown} text={'Pestañas'} className={'dropbtn'} width={6}>
                 <Dropdown tabs={tabs} expanded={expanded} onChange={handleChangeTab} number={content.number} />
               </Button>
-              <Button onClick={handleNewTab} text={'➕'} width={3} />
-              <Button onClick={handleCloseTab} text={'✖️'} width={3} />
+              <Button onClick={handleNewTab} text={'➕'} smallWidth={6} mediumWidth={3} largeWidth={3} />
+              <Button onClick={handleCloseTab} text={'✖️'} smallWidth={6} mediumWidth={3} largeWidth={3} />
             </div>
             <Console logs={logs} />
           </div>
+        </div>
+        <div className='credits row'>
+          <span>⚛ Pablo Cabrera · USAC</span>
         </div>
       </div>
     </div>

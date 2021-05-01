@@ -52,12 +52,12 @@
 | coma                  |               ,                |                      ,                       |
 | comilla_simple        |               '                |                      '                       |
 | comilla_doble         |               "                |                      "                       |
-| id                    |        <identificador>         |              [a-z_$][a-z0-9_$]*              |
-| int                   |        <número entero>         |                    [0-9]+                    |
-| double                |        <número decimal>        |                [0-9]+\.[0-9]+                |
-| char                  |        <cualquier char>        | '({escape}\|[\x00-\x26\x28-\x5B\x5D-\x7F])'  |
-| boolean               |        <valor booleano>        |                 true\|false                  |
-| string                |       <cualquier cadena>       |           "({escape}\|[^\n\"\\])*\           |
+| id                    |        \<identificador>        |              [a-z_$][a-z0-9_$]*              |
+| int                   |        \<número entero>        |                    [0-9]+                    |
+| double                |       \<número decimal>        |                [0-9]+\.[0-9]+                |
+| char                  |       \<cualquier char>        | '({escape}\|[\x00-\x26\x28-\x5B\x5D-\x7F])'  |
+| boolean               |       \<valor booleano>        |                 true\|false                  |
+| string                |      \<cualquier cadena>       |           "({escape}\|[^\n\"\\])*\           |
 
 #### 1.2.1.2. Palabras reservadas
 
@@ -136,12 +136,11 @@
 
 ## 1.3. Sintáxis
 
-Estado inicial = [INI]
+Estado inicial = INI
 
-```py
-
+```ru
 INI
-     : [INS] [EOF]
+        : [INS] [EOF]
 	| error [EOF]
 
 INS
@@ -175,7 +174,7 @@ S
 BLOQUE
         : llaveA [INS] llaveB
         | llaveA llaveB
-	      | llaveA error llaveB
+	| llaveA error llaveB
 
 DECLARACION_FUNCION
         : [TIPO] id parA [PARAMETROS] parB [BLOQUE]
@@ -187,21 +186,21 @@ DECLARACION_METODO
         | r_void id parA parB [BLOQUE]
         | r_void id parA error llaveB
 
-[PARAMETROS]
+PARAMETROS
         : [PARAMETROS] coma [TIPO] id
         | [TIPO] id
 
-[EXEC]
+EXEC
         : r_exec [S_LLAMADA]
 
-[DECLARACION_VARIABLE]
+DECLARACION_VARIABLE
         : [TIPO] id puntocoma
-        | [TIPO] id igual E puntocoma
+        | [TIPO] id igual [E] puntocoma
 
-[ASIGNACION_VARIABLE]
-        : id igual E puntocoma
+ASIGNACION_VARIABLE
+        : id igual [E] puntocoma
 
-[TIPO]
+TIPO
         : r_int
         | r_double
         | r_boolean

@@ -1,18 +1,3 @@
-/* eslint-disable no-fallthrough */
-//               TODO:
-// - llamadas con parametros omitidos
-
-/*
-void main(int n) {
- 	while(n>0){
-      	print("hh");
-      	n--;
-    }
-}
-
-exec main(5);
-*/
-
 import s from './symbols.js'
 import { copyArray } from '../services/util'
 

@@ -648,10 +648,16 @@ const $Instructions = (INS, env) => {
       let Expresion = Instruction.Expresion ? $Evaluar(Instruction.Expresion, env) : null
       return { ...Instruction, Expresion }
     } else if (Instruction.Tipo === 'Break') {
-      if (!cycles.length) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion break fuera de una función')
+      if (!cycles.length) {
+        Error(Instruction.Linea, Instruction.Columna, 'Instruccion break fuera de una función')
+        continue
+      }
       return Instruction
     } else if (Instruction.Tipo === 'Continue') {
-      if (!cycles.length) return Error(Instruction.Linea, Instruction.Columna, 'Instruccion continue fuera de una función')
+      if (!cycles.length) {
+        Error(Instruction.Linea, Instruction.Columna, 'Instruccion continue fuera de una función')
+        continue
+      }
       return Instruction
     }
   }

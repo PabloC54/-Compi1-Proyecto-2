@@ -86,7 +86,7 @@ div button {
 
 div button,
 .app-logo,
-.dropdown-content,
+#dropdown-content,
 .credits {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -123,7 +123,7 @@ button:active {
   margin: 0 auto;
 }
 
-.dropdown-content {
+#dropdown-content {
   display: none;
   position: absolute;
   background-color: #f1f1f1;
@@ -133,7 +133,7 @@ button:active {
   width: 95%;
 }
 
-.dropdown-content span {
+#dropdown-content span {
   background-color: rgb(53, 50, 65);
   color: lightgray;
   padding: 12px 16px;
@@ -142,7 +142,7 @@ button:active {
   line-height: 1em;
 }
 
-.dropdown-content span:hover {
+#dropdown-content span:hover {
   background-color: rgba(30, 26, 46, 1);
   cursor: pointer;
 }
@@ -151,7 +151,7 @@ button:active {
   display: block;
 }
 
-.dropdown-content span.selected-tab {
+#dropdown-content span.selected-tab {
   background-color: rgb(248, 234, 110);
   color: black;
 }
@@ -210,4 +210,18 @@ div.popup-content {
 .credits span {
   font-family: 'Noto Sans JP', sans-serif;
   color: thistle;
+}
+
+div.custom-prompt {
+  background-color: #3535359a;
+}
+
+div.custom-prompt div {
+  background-color: #1b1b1be1;
+  color: rgb(212, 212, 212);
+  border-radius: 10px;
+}
+
+div.custom-prompt .react-confirm-alert{
+  box-shadow: 3px 3px black;
 }

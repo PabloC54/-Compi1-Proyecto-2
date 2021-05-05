@@ -10,6 +10,8 @@ import { Code } from './Code'
 import { Console } from './Console'
 import { Dropdown } from './Dropdown'
 import Popup from 'reactjs-popup'
+import { confirmAlert } from 'react-confirm-alert'
+import 'react-confirm-alert/src/react-confirm-alert.css'
 import 'reactjs-popup/dist/index.css'
 import { Graphviz } from 'graphviz-react'
 const { parse } = require('../compiler/analyzer.js')
@@ -21,8 +23,10 @@ const App = () => {
   const [renderedPopup, setRenderedPopup] = useState(<></>)
   const [toDownload, setToDownload] = useState({ name: '', content: '' })
 
-  const [content, setContent] = useState({ name: 'Nuevo archivo', text: INITIAL_FILE })
-  const [tabs, setTabs] = useState([content])
+  const [tabs, setTabs] = useState(
+    localStorage.getItem('tabs') ? JSON.parse(localStorage.getItem('tabs')) : [{ name: 'Nuevo archivo', text: INITIAL_FILE }]
+  )
+  const [content, setContent] = useState(tabs[0])
   const [expanded, setExpanded] = useState(false)
   const [parsed, setParsed] = useState({})
   const [errors, setErrors] = useState([])
@@ -33,21 +37,42 @@ const App = () => {
 
   const handleContentChange = (editor, _data, value) => {
     const c = editor.getCursor()
-    setContent({ ...content, text: value })
+    setContent({ name: content.name, text: value })
     editor.focus()
     editor.setCursor(c)
+
+    let temp_tabs = copyArray(tabs)
+    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = value
+    setTabs([...temp_tabs])
+    localStorage.setItem('tabs', JSON.stringify([...temp_tabs]))
   }
 
   //> File handling
 
   const handleNewFile = () => {
-    let temp_tabs = copyArray(tabs),
-      name = getNewTabName()
-    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)] = { name, text: INITIAL_FILE }
+    confirmAlert({
+      title: 'Eliminar contenido',
+      message: 'Crear un nuevo archivo eliminará el contenido de esta pestaña. ¿Continuar?',
+      overlayClassName: 'custom-prompt',
+      buttons: [
+        {
+          label: 'Sí',
+          onClick: () => {
+            let temp_tabs = copyArray(tabs),
+              name = /^Nuevo archivo( [0-9]+)?$/.test(content.name) ? content.name : getNewTabName()
+            for (let tab of temp_tabs)
+              if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)] = { name, text: INITIAL_FILE }
 
-    setTabs(temp_tabs)
-    setContent({ name, text: INITIAL_FILE })
-    Log('Se inició un nuevo archivo')
+            setTabs(temp_tabs)
+            setContent({ name, text: INITIAL_FILE })
+            Log('Se inició un nuevo archivo')
+          }
+        },
+        {
+          label: 'No'
+        }
+      ]
+    })
   }
 
   const handleFileOpen = () => inputFile.current.click()
@@ -179,39 +204,31 @@ const App = () => {
       for (let tab of tabs) if (tab.name === name) return true
     }
 
-    let i = 1
-    while (tabExists(`Nuevo archivo ${i}`)) i++
+    let i = 0
+    while (tabExists(i ? `Nuevo archivo ${i}` : `Nuevo archivo`)) i++
 
-    return `Nuevo archivo ${i}`
+    return i ? `Nuevo archivo ${i}` : `Nuevo archivo`
   }
 
   const handleDropDown = () => setExpanded(!expanded)
 
   const handleNewTab = () => {
-    let temp_tabs = copyArray(tabs),
-      name = getNewTabName()
-    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = content.text
-
-    setTabs([...temp_tabs, { name, text: INITIAL_FILE }])
+    let name = getNewTabName()
+    setTabs([...tabs, { name, text: INITIAL_FILE }])
     setContent({ name, text: INITIAL_FILE })
   }
 
   const handleChangeTab = (i) => {
     setExpanded(false)
     if (tabs[i].name === content.name) return
-
-    let temp_tabs = copyArray(tabs)
-    for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = content.text
-
-    setTabs(temp_tabs)
     setContent(tabs[i])
   }
 
   const handleCloseTab = () => {
-    if (tabs.length === 1) return Log('Únicamente hay una pestaña')
-
     let temp_tabs = copyArray(tabs)
     for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs.splice(temp_tabs.indexOf(tab), 1)
+
+    if (tabs.length === 1) temp_tabs.push({ name: 'Nuevo archivo', text: INITIAL_FILE })
 
     setTabs(temp_tabs)
     setContent(temp_tabs[0])
@@ -290,7 +307,8 @@ const App = () => {
               <Button
                 onClick={handleDropDown}
                 text={content.name}
-                className={'dropbtn'}
+                id='tab-name'
+                className='dropbtn'
                 xSmallWidth={12}
                 smallWidth={12}
                 width={6}>

@@ -14,9 +14,12 @@ export function Code({ text, onChange, children }) {
           mode: 'javascript',
           theme: 'dracula',
           lineNumbers: true,
-          tabindex: 2
+          lineWrapping: true,
+          tabSize: 2
         }}
         onChange={onChange}
+        autoCursor
+        autoScroll
       />
     </div>
   )

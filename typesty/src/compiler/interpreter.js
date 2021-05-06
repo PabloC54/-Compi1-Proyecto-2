@@ -437,11 +437,13 @@ const operation_results = {
   },
   casteo: {
     int: {
+      int: 'int',
       double: 'int',
       char: 'int'
     },
     double: {
       int: 'double',
+      double: 'double',
       char: 'double'
     },
     boolean: {},
@@ -508,7 +510,8 @@ const operations = {
   and: (izq, der) => Boolean(izq.Valor) && Boolean(der.Valor),
   or: (izq, der) => Boolean(izq.Valor) || Boolean(der.Valor),
   casteo: (izq, der) => {
-    if (['int', 'double'].includes(izq.Tipo)) return der.Tipo === 'char' ? der.Valor.charCodeAt(0) : parseInt(der.Valor)
+    if (['int', 'double'].includes(izq.Tipo))
+      return der.Tipo === 'char' ? der.Valor.charCodeAt(0) : izq.Tipo === 'int' ? parseInt(der.Valor) : der.Valor
     else if (izq.Tipo === 'string') return String(der.Valor)
     else if (izq.Tipo === 'char') return String.fromCharCode(der.Valor)
   },
@@ -711,6 +714,8 @@ const $Evaluar = (Operacion, env) => {
       }'`
     )
 
+  if (Operacion.Tipo === 'division') if ((left_expression.Valor / rigth_expression.Valor) % 1 === 0) return_type = 'int'
+
   return s.Simbolo(Operacion.Linea, Operacion.Columna, return_type, operations[Operacion.Tipo](left_expression, rigth_expression))
 }
 
@@ -723,6 +728,7 @@ const $Declaracion = ({ Linea, Columna, Tipo_variable, ID, Expresion }, env) => 
     if (!value) return Error(Linea, Linea, `No se pudo realizar la declaracion`)
     if (value.Tipo !== Tipo_variable)
       if (Tipo_variable === 'double' && value.Tipo === 'int') value.Tipo = 'double'
+      else if (Tipo_variable === 'int' && value.Tipo === 'double' && value.Valor % 1 === 0) value.Tipo = 'int'
       else
         return Error(
           Linea,
@@ -740,7 +746,10 @@ const $Asignacion = ({ Linea, Columna, ID, Expresion }, env) => {
 
   let value = $Evaluar(Expresion, env)
   if (!value) return Error(Linea, Columna, `No se pudo realizar la asignacion`)
-  if (id.Tipo !== value.Tipo) return Error(Linea, Columna, `No se puede asignar un valor ${value.Tipo} a '${ID}' (${id.Tipo})`)
+  if (id.Tipo !== value.Tipo)
+    if (id.Tipo === 'double' && value.Tipo === 'int') value.Tipo = 'double'
+    else if (id.Tipo === 'int' && value.Tipo === 'double' && value.Valor % 1 === 0) value.Tipo = 'int'
+    else return Error(Linea, Columna, `No se puede asignar un valor ${value.Tipo} a '${ID}' (${id.Tipo})`)
 
   id.Valor = value.Valor
 }
@@ -844,7 +853,7 @@ const $DeclararVector = ({ Linea, Columna, Tipo_valores, ID, Tipo_i, Tamaño, Va
         return Error(
           Linea,
           Columna,
-          `El tipo del vector '${ID}' (${Tipo_valores}) no coincide con un valor asignado (${value.Tipo})`
+          `El tipo del vector '${ID}' (${Tipo_valores}) no coincide con un valor asignado (${temp_value.Tipo})`
         )
 
       values.push(temp_value)
@@ -1053,7 +1062,7 @@ const $While = ({ Linea, Columna, Condicion, Instrucciones }, env) => {
 const $For = ({ Linea, Columna, Inicializacion, Condicion, Actualizacion, Instrucciones }, env) => {
   let new_env = Environment(env.ID + `$for(${Linea},${Columna})`, env)
 
-  let init_value = $Evaluar(Inicializacion.Expresion)
+  let init_value = $Evaluar(Inicializacion.Expresion, env)
   if (!init_value && !['int', 'double'].includes(init_value.Tipo))
     return Error(
       Inicializacion.Linea,

@@ -24,7 +24,7 @@ const App = () => {
   const [toDownload, setToDownload] = useState({ name: '', content: '' })
 
   const [tabs, setTabs] = useState(
-    localStorage.getItem('tabs') ? JSON.parse(localStorage.getItem('tabs')) : [{ name: 'Nuevo archivo', text: INITIAL_FILE }]
+    localStorage.getItem('tabs') ? JSON.parse(localStorage.getItem('tabs')) : [{ name: 'Nuevo archivo.ty', text: INITIAL_FILE }]
   )
   const [content, setContent] = useState(tabs[0])
   const [expanded, setExpanded] = useState(false)
@@ -35,12 +35,7 @@ const App = () => {
 
   const inputFile = useRef(null)
 
-  const handleContentChange = (editor, _data, value) => {
-    const c = editor.getCursor()
-    setContent({ name: content.name, text: value })
-    editor.focus()
-    editor.setCursor(c)
-
+  const handleContentChange = (_editor, _data, value) => {
     let temp_tabs = copyArray(tabs)
     for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)].text = value
     setTabs([...temp_tabs])
@@ -59,7 +54,7 @@ const App = () => {
           label: 'Sí',
           onClick: () => {
             let temp_tabs = copyArray(tabs),
-              name = /^Nuevo archivo( [0-9]+)?$/.test(content.name) ? content.name : getNewTabName()
+              name = /^Nuevo archivo( [0-9]+)?\.ty$/.test(content.name) ? content.name : getNewTabName()
             for (let tab of temp_tabs)
               if (tab.name === content.name) temp_tabs[temp_tabs.indexOf(tab)] = { name, text: INITIAL_FILE }
 
@@ -169,7 +164,7 @@ const App = () => {
         <Graphviz dot={dot_content} />
       </div>
     )
-    setToDownload({ name: 'AST.dot', text: dot_content })
+    setToDownload({ name: content.name + ' - AST.dot', text: dot_content })
     setPopupOpen(true)
 
     Log('Mostrando el AST')
@@ -180,7 +175,7 @@ const App = () => {
 
     let file_content = reportTable('Errores', errors)
     setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    setToDownload({ name: 'errors.html', text: file_content })
+    setToDownload({ name: content.name + ' - errors.html', text: file_content })
     setPopupOpen(true)
 
     Log('Mostrando los errores encontrados')
@@ -191,7 +186,7 @@ const App = () => {
 
     let file_content = reportTable('Símbolos', symbols)
     setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    setToDownload({ name: 'symbols.html', text: file_content })
+    setToDownload({ name: content.name + ' - símbolos.html', text: file_content })
     setPopupOpen(true)
 
     Log('Mostrando la tabla de símbolos')
@@ -205,9 +200,9 @@ const App = () => {
     }
 
     let i = 0
-    while (tabExists(i ? `Nuevo archivo ${i}` : `Nuevo archivo`)) i++
+    while (tabExists(i ? `Nuevo archivo ${i}.ty` : `Nuevo archivo.ty`)) i++
 
-    return i ? `Nuevo archivo ${i}` : `Nuevo archivo`
+    return i ? `Nuevo archivo ${i}.ty` : `Nuevo archivo.ty`
   }
 
   const handleDropDown = () => setExpanded(!expanded)
@@ -228,7 +223,7 @@ const App = () => {
     let temp_tabs = copyArray(tabs)
     for (let tab of temp_tabs) if (tab.name === content.name) temp_tabs.splice(temp_tabs.indexOf(tab), 1)
 
-    if (tabs.length === 1) temp_tabs.push({ name: 'Nuevo archivo', text: INITIAL_FILE })
+    if (tabs.length === 1) temp_tabs.push({ name: 'Nuevo archivo.ty', text: INITIAL_FILE })
 
     setTabs(temp_tabs)
     setContent(temp_tabs[0])

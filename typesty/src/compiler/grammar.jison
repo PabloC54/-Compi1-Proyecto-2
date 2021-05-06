@@ -18,7 +18,7 @@
   }
 
   const unscape = function(s) {
-    return s.substr(1, s.length - 2).replaceAll('\\\'', '\'').replaceAll('\\"', '"').replaceAll('\\\\', '\\')
+    return s.substr(1, s.length - 2).replaceAll('\\\'', '\'').replaceAll('\\"', '"').replaceAll('\\\\', '\\').replaceAll('\\n', '\n').replaceAll('\\t', '\t').replaceAll('\\r', '\r')
   }
 %}
 

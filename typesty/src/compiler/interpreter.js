@@ -1213,4 +1213,4 @@ const $DoWhile = ({ Linea, Columna, Condicion, Instrucciones }, env) => {
   }
 }
 
-export { interpret }
+export default interpret

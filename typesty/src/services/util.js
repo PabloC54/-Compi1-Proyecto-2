@@ -1,10 +1,10 @@
-const copyArray = (INS) => JSON.parse(JSON.stringify(INS))
+const copyArray = (array) => JSON.parse(JSON.stringify(array))
 
 const toTitle = (msg) => ['='.repeat(msg.length + 4), `| ${msg} |`, '='.repeat(msg.length + 4)]
 
-const saveFile = ({ name, text }) => {
+const downloadFile = ({ name, content }) => {
   const element = document.createElement('a')
-  const file = new Blob([text], {
+  const file = new Blob([content], {
     type: 'text/plain'
   })
   element.href = URL.createObjectURL(file)
@@ -12,4 +12,4 @@ const saveFile = ({ name, text }) => {
   element.click()
 }
 
-export { copyArray, toTitle, saveFile }
+export { copyArray, toTitle, downloadFile }

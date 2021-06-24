@@ -1,5 +1,5 @@
 %{
-  const s = require('/home/pablo/Documentos/src/Universidad/-Compi1-Proyecto-2/typesty/src/compiler/symbols.js')
+  import s from './symbols.js'
   const errors = []
 
   const Error = function (Linea, Columna, Tipo, Mensaje) {

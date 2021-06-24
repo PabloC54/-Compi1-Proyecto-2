@@ -292,7 +292,7 @@ const Continue = function (Linea, Columna) {
   }
 }
 
-module.exports = {
+const symbols = {
   Exec,
   Funcion,
   Metodo,
@@ -323,3 +323,5 @@ module.exports = {
   Break,
   Continue
 }
+
+export default symbols

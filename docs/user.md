@@ -1,3 +1,5 @@
+# [Typesty](index.html)
+
 # 1. Manual de Usuario
 
 Guía de uso de Typesty, un compilador web de lenguaje .ty

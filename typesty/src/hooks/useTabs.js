@@ -1,15 +1,13 @@
 import { useState } from 'react'
 
-import { copyArray } from '@/services/util'
+import { copyArray } from '@/helper/util'
 
 const INITIAL_FILE = 'void main(){\n  \n}\n\nexec main();'
 
+const INITIAL_TAB = { name: 'Nuevo archivo.ty', content: INITIAL_FILE, active: true }
+
 const useTabs = () => {
-  const [tabs, setTabs] = useState(
-    localStorage.getItem('tabs')
-      ? JSON.parse(localStorage.getItem('tabs'))
-      : [{ name: 'Nuevo archivo.ty', content: INITIAL_FILE, active: true }]
-  )
+  const [tabs, setTabs] = useState(localStorage.getItem('tabs') ? JSON.parse(localStorage.getItem('tabs')) : [INITIAL_TAB])
 
   const saveTabs = (tabs) => localStorage.setItem('tabs', JSON.stringify(tabs))
 
@@ -22,12 +20,14 @@ const useTabs = () => {
     return newTabs[0]
   }
 
+  const getActiveIndex = () => tabs.findIndex((tab) => tab.name === activeTab.name)
+
   const [activeTab, setActiveTab] = useState(tabs.find((tab) => tab.active) || getFirstTab())
 
   const setContent = (content) => setActiveTab({ ...activeTab, content })
 
   const getNewTabName = () => {
-    const i = tabs.reduce((i, tab) => (tab.name === (i ? `Nuevo archivo ${i}.ty` : `Nuevo archivo.ty`) ? i + 1 : i), 0)
+    const i = tabs.reduce((i, tab) => (tab.name === (i ? `Nuevo archivo ${i}.ty` : `Nuevo archivo.ty`) ? i + 1 : i), 1)
     return i ? `Nuevo archivo ${i}.ty` : `Nuevo archivo.ty`
   }
 
@@ -36,7 +36,11 @@ const useTabs = () => {
     const newTab = { name: name || newName, content: content || INITIAL_FILE, active: true }
 
     const newTabs = copyArray(tabs)
-    newTabs.find((tab) => tab.name === activeTab.name).active = false
+
+    const actualTab = { ...activeTab, active: false }
+    const activeIndex = getActiveIndex()
+
+    newTabs[activeIndex] = actualTab
     newTabs.push(newTab)
 
     setActiveTab(newTab)
@@ -46,20 +50,27 @@ const useTabs = () => {
 
   const changeTab = (i) => {
     const newTabs = copyArray(tabs)
-    newTabs.find((tab) => tab.name === activeTab.name).active = true
+
+    const activeIndex = getActiveIndex()
+    if (i === activeIndex) return
+
+    const actualTab = { ...activeTab, active: false }
+    newTabs[activeIndex] = actualTab
+    newTabs[i].active = true
 
     setActiveTab(newTabs[i])
     setTabs(newTabs)
+    saveTabs(newTabs)
   }
 
   const closeTab = () => {
     const newTabs = copyArray(tabs)
-    newTabs.splice(
-      newTabs.findIndex((tab) => tab.name === activeTab.name),
-      1
-    )
+    const activeIndex = getActiveIndex()
+    newTabs.splice(activeIndex, 1)
 
-    if (!newTabs.length) newTabs.push({ name: 'Nuevo archivo.ty', content: INITIAL_FILE, active: true })
+    if (!newTabs.length) newTabs.push(INITIAL_TAB)
+
+    newTabs[0].active = true
 
     setActiveTab(newTabs[0])
     setTabs(newTabs)

@@ -2,13 +2,18 @@ import React from 'react'
 import injectSheet from 'react-jss'
 
 import githubIcon from '@img/github-icon.png'
+import docIcon from '@img/doc-icon.png'
 
 function Footer({ classes }) {
   return (
     <div className={`${classes.base} unselectable`}>
       <a className={classes.repository} href='https://github.com/PabloC54'>
-        Pablo Cabrera
         <img src={githubIcon} alt='github' />
+        Pablo Cabrera
+      </a>
+      <a href='https://pabloc54.github.io/typesty/docs'>
+        <img src={docIcon} alt='documentacion' />
+        Documentación
       </a>
     </div>
   )
@@ -22,21 +27,16 @@ const styles = {
     textAlign: 'center',
     height: 40,
     backgroundColor: '#222',
-    color: 'khaki'
-  },
-  repository: {
-    display: 'flex',
-    alignItems: 'center',
-    color: 'khaki',
-    textDecoration: 'none',
-    height: 30,
-    lineHeight: '15px',
-    '&:hover': {
-      cursor: 'pointer'
-    },
-    '& img': {
-      height: '100%',
-      margin: '0 10px'
+    '& a': {
+      display: 'flex',
+      alignItems: 'center',
+      height: 30,
+      color: 'khaki',
+      textDecoration: 'none',
+      '& img': {
+        height: '80%',
+        margin: '0 10px'
+      }
     }
   }
 }

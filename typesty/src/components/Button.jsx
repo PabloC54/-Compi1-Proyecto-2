@@ -3,7 +3,7 @@ import injectSheet from 'react-jss'
 
 function Button({ onClick, highlight, className, children, classes }) {
   return (
-    <div className={`${className} ${classes.base} ${highlight && classes.highlight}`} onClick={onClick}>
+    <div className={`${className&&className} ${classes.base} ${highlight && classes.highlight}`} onClick={onClick}>
       {children}
     </div>
   )

@@ -1,7 +1,4 @@
 # ⚛ Typesty
-Proyecto 2 del curso de Organización de Lenguajes y Compiladores 1.
+Implementación de un intérprete en JavaScript.
 
-## Documentación
-- [Manual de usuario](docs/manual/user.md)
-- [Manual técnico](docs/manual/technical.md)
-- [Gramática](docs/manual/grammar.md)
+*Proyecto disponible en [GitHub Pages](https://pabloc54.github.io/typesty/)*

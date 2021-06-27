@@ -7,12 +7,15 @@ import './index.css'
 
 import { LogContextProvider } from '@/context/LogContext'
 import { TabsContextProvider } from '@/context/TabsContext'
+import { PopupContextProvider } from '@/context/PopupContext'
 
 ReactDOM.render(
   <React.StrictMode>
     <LogContextProvider>
       <TabsContextProvider>
-        <App />
+        <PopupContextProvider>
+          <App />
+        </PopupContextProvider>
       </TabsContextProvider>
     </LogContextProvider>
   </React.StrictMode>,

@@ -1,42 +1,36 @@
-import React from 'react'
-import { useState, useContext, useRef } from 'react'
+import React, { useState, useContext, useRef } from 'react'
 import { createUseStyles } from 'react-jss'
 
 import useOutsideAlerter from '@/hooks/useOutsideAlerter'
+import useCompiler from '@/hooks/useCompiler'
 
-//import { Graphviz } from 'graphviz-react'
 import Button from './Button'
 import Logo from './Logo'
 
 import LogContext from '@/context/LogContext'
 import TabsContext from '@/context/TabsContext'
 
-import { downloadFile, toTitle } from '@/services/util'
-//import { reportTable, graphAST } from 'services/reporter'
+import { downloadFile } from '@/helper/util'
 
 import menuIcon from '@img/menu-icon.png'
 import boxIcon from '@img/box-icon.png'
 import playIcon from '@img/play-icon.png'
 
-import parse from '@/compiler/analyzer'
-import interpret from '@/compiler/interpreter'
-
 function Navbar({ width }) {
   const classes = useStyles(width)
 
   const [expanded, setExpanded] = useState(false)
-  const [parsed, setParsed] = useState({})
-  const [errors, setErrors] = useState([])
-  const [symbols, setSymbols] = useState([])
 
   const { printLog } = useContext(LogContext)
   const { tabs, activeTab, newTab, changeTab } = useContext(TabsContext)
   const { name, content } = activeTab
 
+  const { compileFile, reportAST, reportErrors, reportSymbols } = useCompiler()
+
   const inputFile = useRef(null)
   const menuRef = useRef(null)
 
-  const toggleMenu = () => setExpanded(!expanded)
+  const showMenu = () => setExpanded(true)
 
   const hideMenu = () => setExpanded(false)
 
@@ -74,107 +68,34 @@ function Navbar({ width }) {
     printLog(`Se guardó el archivo ${name}`)
   }
 
-  const compileFile = () => {
+  const handleCompile = () => {
     hideMenu()
-
-    const { parsed_body, parsed_errors } = parse(content)
-    if (!parsed_body || !parsed_body.length) return
-
-    setErrors([])
-    setSymbols([])
-
-    if (parsed_errors.length) {
-      setErrors(parsed_errors)
-      return printLog(
-        [
-          `Compilando...`,
-          ...toTitle('Errores encontrados'),
-          ...parsed_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`),
-          `Puede consultar los errores en 'Reportar errores'`
-        ],
-        true
-      )
-    }
-
-    setParsed(parsed_body)
-
-    const start = performance.now()
-    const { printed, interpreted_errors, symbols } = interpret([...parsed_body])
-    const end = performance.now()
-
-    setSymbols(symbols)
-
-    if (interpreted_errors.length) {
-      const compiler_errors = [...parsed_errors, ...interpreted_errors]
-      setErrors(compiler_errors)
-      return printLog(
-        [
-          `Compilando...`,
-          ...toTitle('Errores encontrados'),
-          ...compiler_errors.map((e) => `[${e.Linea}, ${e.Columna}] ${e.Tipo}: ${e.Mensaje}`),
-          `Puede consultar los errores en 'Reportar errores'`
-        ],
-        true
-      )
-    }
-
-    printLog([`Compilando...`, ...toTitle(`Output (${(end - start).toFixed(6)} milisegundos)`), ...printed], true)
+    compileFile(content)
   }
 
-  //> Reports
-
-  const reportAST = () => {
+  const handleAST = () => {
     hideMenu()
-
-    if (!Object.keys(parsed).length) return printLog('No hay código compilado para generar el AST')
-
-    //let dot_content = graphAST(parsed)
-
-    //setRenderedPopup(
-    //  <div id='graph'>
-    //    <Graphviz dot={dot_content} />
-    //  </div>
-    //)
-    //setToDownload({ name: content.name + ' - AST.dot', text: dot_content })
-    //setPopupOpen(true)
-
-    printLog('Mostrando el AST')
+    reportAST(name)
   }
 
-  const reportErrors = () => {
+  const handleErrors = () => {
     hideMenu()
-
-    if (!errors.length) return printLog('No hay errores para reportar')
-
-    //const file_content = reportTable('Errores', errors)
-    //setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    //setToDownload({ name: content.name + ' - errors.html', text: file_content })
-    //setPopupOpen(true)
-
-    printLog('Mostrando los errores encontrados')
+    reportErrors(name)
   }
 
-  const reportSymbols = () => {
+  const handleSymbols = () => {
     hideMenu()
-
-    if (!symbols.length) return printLog('No hay tabla de símbolos para reportar')
-
-    //const file_content = reportTable('Símbolos', symbols)
-    //setRenderedPopup(<div className='modal-body' dangerouslySetInnerHTML={{ __html: file_content }} />)
-    //setToDownload({ name: content.name + ' - símbolos.html', text: file_content })
-    //setPopupOpen(true)
-
-    printLog('Mostrando la tabla de símbolos')
+    reportSymbols(name)
   }
 
   return (
     <div className={`${classes.base} unselectable`}>
       <div className={classes.navbar}>
-        <div className={classes.menuButton} onClick={toggleMenu}>
+        <div className={classes.menuButton} onClick={showMenu}>
           <img src={menuIcon} alt='menu' />
         </div>
         <Logo />
-        <Button className={classes.compileButton} onClick={compileFile} highlight>
+        <Button className={classes.compileButton} onClick={handleCompile} highlight>
           Run
           <img src={playIcon} alt='run' />
         </Button>
@@ -189,15 +110,15 @@ function Navbar({ width }) {
             <img src={boxIcon} alt='guardar archivo' />
             Guardar archivo
           </div>
-          <div onClick={reportErrors}>
+          <div onClick={handleErrors}>
             <img src={boxIcon} alt='reportar errores' />
             Reportar errores
           </div>
-          <div onClick={reportAST}>
+          <div onClick={handleAST}>
             <img src={boxIcon} alt='reportar ast' />
             Reportar AST
           </div>
-          <div onClick={reportSymbols}>
+          <div onClick={handleSymbols}>
             <img src={boxIcon} alt='reportar simbolos' />
             Reportar símbolos
           </div>

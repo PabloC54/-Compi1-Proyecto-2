@@ -42,7 +42,7 @@ const useStyles = createUseStyles({
     padding: '12px 8px',
     border: '2px khaki solid',
     borderRadius: 12,
-    backgroundColor: '#202032',
+    backgroundColor: 'rgb(43,43,41)',
     color: 'khaki',
     lineHeight: 1.5
   }

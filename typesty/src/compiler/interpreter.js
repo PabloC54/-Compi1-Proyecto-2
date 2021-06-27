@@ -1,5 +1,5 @@
 import s from './symbols.js'
-import { copyArray } from '../services/util'
+import { copyArray } from '@/helper/util'
 
 // ===================> CORE <========================
 

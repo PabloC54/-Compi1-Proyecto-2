@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
 
-import Footer from './Footer'
+import Navbar from './Navbar'
+import Popup from './Popup'
 import Code from './Code'
 import Console from './Console'
-import Navbar from './Navbar'
+import Footer from './Footer'
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth)
@@ -17,6 +18,7 @@ function App() {
   return (
     <>
       <Navbar width={width} />
+      <Popup />
       <div className={classes.base}>
         <Code width={width} />
         <Console width={width} />
@@ -33,9 +35,8 @@ const useStyles = createUseStyles({
     alignItems: 'center',
     padding: '80px 0 20px',
     minHeight: 'calc(100vh - 140px)',
-    background: 'linear-gradient(-45deg, #57A, #59B, #6AC)',
-    justifyContent: 'space-around',
-    animation: 'gradient 30s ease infinite'
+    background: 'linear-gradient(30deg, rgb(163 66 226), rgb(64 85 191), rgb(90 189 162))',
+    justifyContent: 'space-around'
   }
 })
 

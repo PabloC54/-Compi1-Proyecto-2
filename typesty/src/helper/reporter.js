@@ -3,105 +3,40 @@ const reportTable = (name, table) => {
   <html>
   <head>
   <title>${name}</title>
-	<meta charset="UTF-8">
   <style>
-		@charset "UTF-8";
-		@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
-
-		body {
-			font-weight: 300;
-			line-height: 1.42em;
-			color: #a7a1ae;
-			font-family: "Open Sans", sans-serif;
-			background-color: #1f2739;
-		}
-
-		h1 {
-			font-size: 3em;
-			font-weight: 300;
-			line-height: 1em;
+		.tablecontainer {
 			text-align: center;
-			color: #4dc3fa;
+			overflow: hidden;
+			margin: 0 auto;
+			display: table;
+			padding: 0 0 8em 0;
+      color: antiquewhite;
 		}
 
-		h2 {
-			font-size: 1em;
-			font-weight: 300;
-			text-align: center;
-			display: block;
-			line-height: 1em;
-			padding-bottom: 2em;
-			color: #fb667a;
-		}
-
-		h2 a {
-			font-weight: 700;
-			text-transform: uppercase;
-			color: #fb667a;
-			text-decoration: none;
-		}
-
-		.blue {
-			color: #185875;
-		}
-		.yellow {
-			color: #fff842;
-		}
-
-		.tablecontainer th h1 {
+		.tablecontainer h1 {
 			font-weight: bold;
 			font-size: 1em;
-			text-align: left;
-			color: #185875;
+      line-height: 1.5em;
+			text-align: center;
+			color: khaki;
+		}
+
+		.tablecontainer th,
+		.tablecontainer td {
+      padding: 5px 10px;
+		}
+
+		.tablecontainer th {
+			background: rgb(47,47,47);
 		}
 
 		.tablecontainer td {
+			background: rgb(44,44,44);
 			font-weight: normal;
 			font-size: 1em;
 			-webkit-box-shadow: 0 2px 2px -2px #0e1119;
 			-moz-box-shadow: 0 2px 2px -2px #0e1119;
 			box-shadow: 0 2px 2px -2px #0e1119;
-		}
-
-		.tablecontainer {
-			text-align: left;
-			overflow: hidden;
-			width: 80%;
-			margin: 0 auto;
-			display: table;
-			padding: 0 0 8em 0;
-		}
-
-		.tablecontainer td,
-		.tablecontainer th {
-			padding-bottom: 2%;
-			padding-top: 2%;
-			padding-left: 2%;
-		}
-
-		/* Background-color of the odd rows */
-		.tablecontainer tr:nth-child(odd) {
-			background-color: #323c50;
-		}
-
-		/* Background-color of the even rows */
-		.tablecontainer tr:nth-child(even) {
-			background-color: #2c3446;
-		}
-
-		.tablecontainer th {
-			background-color: #1f2739;
-		}
-
-		.tablecontainer td:first-child {
-			color: #fb667a;
-		}
-		
-		@media (max-width: 800px) {
-			.tablecontainer td:nth-child(4),
-			.tablecontainer th:nth-child(4) {
-				display: none;
-			}
 		}
   </style>
   </head>
@@ -417,8 +352,6 @@ const printDeclararLista = (back_node, { Linea, Columna, Tipo_valores, ID, Tipo_
     temp_str += printOperacion(Valor, new_name)
     temp_str += link_nodes(name, new_name)
   }
-
-  //TODO: Tipo_i
 
   return temp_str
 }

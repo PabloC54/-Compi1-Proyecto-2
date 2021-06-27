@@ -1,4 +1,6 @@
-# 1. Gramática de Regexive
+# [Typesty](index.html)
+
+## 1. Gramática de Regexive
 
 ## 1.1. Contenidos
 - [1. Gramática de Regexive](#1-gramática-de-regexive)
